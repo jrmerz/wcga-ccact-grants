@@ -1,0 +1,33 @@
+{
+  "name": "wcga-ccact-grants",
+  "version": "0.0.1",
+  "author": "Justin Merz <jrmerz@gmail.com>",
+  "description": "",
+  "dependencies": {
+    "express": "*",
+    "mongodb": "*",
+    "MD5": "*",
+    "async": "*",
+    "request": "*",
+    "grunt": "*",
+    "grunt-shell": "*",
+    "load-grunt-tasks": "*",
+    "time-grunt": "*",
+    "jshint-stylish": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-usemin": "*",
+    "grunt-concurrent": "*",
+    "grunt-autoprefixer": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-rev": "*",
+    "grunt-contrib-compass": "*",
+    "grunt-contrib-imagemin": "*",
+    "grunt-contrib-cssmin": "*",
+    "grunt-svgmin": "*"
+  },
+  "devDependencies": {
+    "grunt-filerev": "*"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "wcga-ccact-grants",
+  "version": "0.0.1",
+  "homepage": "https://github.com/jrmerz/wcga-ccact-grants",
+  "authors": [
+    "Justin Merz <jrmerz@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "*",
+    "font-awesome": "*",
+    "handlebars": "*",
+    "animate-css": "*"
+  }
+}
