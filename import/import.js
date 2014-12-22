@@ -7,7 +7,7 @@ var ObjectID = require('mongodb').ObjectID;
 var MongoClient = require('mongodb').MongoClient, db, collection;
 var importLog, lastRun, config, count;
 
-var grants_gov = require('./lib/grants_gov');
+var grantsGov = require('./lib/grantsGov');
 
 var verbose = false;
 
@@ -49,7 +49,7 @@ function connect() {
 			}
 			collection = c;
 
-			grants_gov.run(c, function(){
+			grantsGov.run(c, function(){
 				console.log('done');
 			});
 			

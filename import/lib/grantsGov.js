@@ -2,6 +2,7 @@ var request = require('request');
 var async = require('async');
 var md5 = require('md5');
 var config = require('./grantsGovConf').config;
+var vocab = require('./controlledVocab');
 var transposelib = require('./transpose');
 
 var defaultSearch = {
@@ -29,14 +30,17 @@ var attributeMap = {
         awardFloor : 'minAmount',
         archiveDate : 'archiveDate',
         costSharing : 'costSharing',
-        dateEntered : 'createTimeStamp',
         organization : 'agencyName',
         contactEmail : 'agencyContactEmail',
         numberOfRewards : 'numberOfAwards',
         estimatedFunding : 'estimatedFunding',
-        applicantEligibilityDesc : 'additionalEligibilityInfo'
+        applicantEligibilityDesc : 'additionalEligibilityInfo',
+        createTimeStamp : 'dateEntered'
     },
-    contact : ['agencyContacDesc', 'agencyContactEmail', 'agencyContactPhone']
+    // merge these into contact HTML
+    contact : ['agencyContacDesc', 'agencyContactEmail', 'agencyContactPhone'],
+    // turn these into dates
+    dates : ['applicationsDueDate', 'postingDate', 'archiveDate','dateEntered']
 }
 
 
@@ -58,6 +62,7 @@ exports.run = function(collection, callback) {
 
 function getOverview(resp, collection, callback) {
     for( var i = 0; i < resp.oppHits.length; i++ ) {
+        // TODO: check blacklists
         overviews.push(resp.oppHits[i]);
     }
 
@@ -75,7 +80,7 @@ function getOverview(resp, collection, callback) {
     }
 }
 
-var c= 0;
+var c = 0;
 function getDetails(collection, callback) {
     async.eachSeries(
         overviews,
@@ -88,18 +93,32 @@ function getDetails(collection, callback) {
                         return next();
                     }
 
-                    var obj = transposelib.transform(JSON.parse(resp));
-                    // set a 'fake' link
-                    obj.link = 'http://www.grants.gov/'+obj.id;
+                    var obj = createItemFromResp(JSON.parse(resp));
+                    vocab.process(obj);
+
+                    // set md5 for change checking
                     obj.md5 = md5(JSON.stringify(obj));
-                    prep(obj);
 
                     collection.findOne({link: obj.link}, function(err, item) {
                         if( !item ) {
+                            console.log('INSERTING: '+obj.fundingOppNumber);
                             upsert(obj, collection, next); // new
                         } else if( item.md5 != obj.md5 ) {
+                            console.log('UPDATING: '+obj.fundingOppNumber);
+
+                            /* debugging
+                                for( var key in obj ) {
+                                var st1 = JSON.stringify(obj[key]);
+                                var st2 = JSON.stringify(item[key]);
+                                if( st1 != st2 ) {
+                                    console.log('  --new['+key+']: '+st1);
+                                    console.log('  --old['+key+']: '+st2);
+                                }
+                            }*/
+
                             upsert(obj, collection, next); // update
                         } else {
+                            console.log('skipping: '+obj.fundingOppNumber);
                             next(); // no changes
                         }
                     });
@@ -183,10 +202,10 @@ function createItemFromResp(obj) {
         item.contact = [];
         for( var i = 0; i < attributeMap.contact.length; i++ ) {
             if( obj.synopsis[attributeMap.contact[i]] ) {
-                contact.push(obj.synopsis[attributeMap.contact[i]]);
+                item.contact.push(obj.synopsis[attributeMap.contact[i]]);
             }
         }
-        item.contact = contact.join('<br />');
+        item.contact = item.contact.join('<br />');
     }
     
     // set category and fundingActivityCategory
@@ -197,8 +216,12 @@ function createItemFromResp(obj) {
             var id = obj.fundingActivityCategories[i].id;
             var cat = config.categories[id];
 
-            if( !cat ) continue:
-            item.category.push(cat.wgca.length > 0 ? cat.wgca : cat.grantsGov);
+            if( !cat ) continue;
+
+            var name = cat.wgca.length > 0 ? cat.wgca : cat.grantsGov;
+            if( item.category.indexOf(name) == -1 ) {
+                item.category.push(name);
+            }
             item.fundingActivityCategory.push(id);
         }
     }
@@ -221,8 +244,11 @@ function createItemFromResp(obj) {
         for( var i = 0; i < obj.fundingInstruments.length; i++ ) {
             var id = obj.fundingInstruments[i].id;
             var type = config.assistanceTypes[id];
+            var name = type || obj.fundingInstruments[i].description;
 
-            item.assistanceType.push(type || obj.fundingInstruments[i].description);
+            if( item.assistanceType.indexOf(name) == -1 ) {
+                item.assistanceType.push(name);
+            }
             item.fundingInstrumentType.push(id);
         }
     }
@@ -238,7 +264,9 @@ function createItemFromResp(obj) {
 
             if( !app ) continue;
             item.eligibilityCategory.push(obj.applicantTypes[i].id);
-            item.eligibleApplicants.push(app.wgca);
+            if( item.eligibleApplicants.indexOf(app.wgca) == -1 ) {
+                item.eligibleApplicants.push(app.wgca);
+            }
         }
     }
 
@@ -246,15 +274,21 @@ function createItemFromResp(obj) {
     for( var key in item ) {
         if( Array.isArray(item[key]) ) {
             item[key].sort(function(a, b){
-                if( a.id > b.id ) return 1;
-                if( a.id < b.id ) return -1;
+                if( a > b ) return 1;
+                if( a < b ) return -1;
                 return 0;
             });
         }
     }
 
-    // set md5 for change checking
-    item.md5 = md5(JSON.stringify(item));
+    // turn date strings into objects
+    for( var i = 0; i < attributeMap.dates.length; i++ ) {
+        if( item[attributeMap.dates[i]] ) {
+            item[attributeMap.dates[i]] = new Date(item[attributeMap.dates[i]]);
+        }
+    }
+
+    return item;
 }
 
 
