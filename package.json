@@ -8,7 +8,7 @@
     "mongodb": "*",
     "MD5": "*",
     "async": "*",
-    "request": "*",
+    "request": "^2.51.0",
     "grunt": "*",
     "grunt-shell": "*",
     "load-grunt-tasks": "*",
@@ -25,7 +25,9 @@
     "grunt-contrib-compass": "*",
     "grunt-contrib-imagemin": "*",
     "grunt-contrib-cssmin": "*",
-    "grunt-svgmin": "*"
+    "grunt-svgmin": "*",
+    "xml2js": "^0.4.4",
+    "unzip": "^0.1.11"
   },
   "devDependencies": {
     "grunt-filerev": "*"

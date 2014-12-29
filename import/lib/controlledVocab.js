@@ -85,8 +85,8 @@ exports.process = function(item) {
     if( item.costShare === undefined ) {
         item.costShareText = 'Cost Share Not Specified'
     } else if ( item.costShare === true || item.costShare == 'y' ) {
-        item.costShare = 'Cost Share is Required';
+        item.costShareText = 'Cost Share is Required';
     } else {
-        item.costShare = 'Cost Share in Not Required';
+        item.costShareText = 'Cost Share in Not Required';
     }
 }

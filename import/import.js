@@ -7,7 +7,7 @@ var ObjectID = require('mongodb').ObjectID;
 var MongoClient = require('mongodb').MongoClient, db, collection;
 var importLog, lastRun, config, count;
 
-var grantsGov = require('./lib/grantsGov');
+var grantsGov = require('./lib/grantsGovXml');
 
 var verbose = false;
 

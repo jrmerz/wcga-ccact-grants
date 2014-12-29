@@ -3,7 +3,6 @@ var async = require('async');
 var md5 = require('md5');
 var config = require('./grantsGovConf').config;
 var vocab = require('./controlledVocab');
-var transposelib = require('./transpose');
 
 var defaultSearch = {
     "fundingCategories" : "NR|RA",
