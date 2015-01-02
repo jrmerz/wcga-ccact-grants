@@ -3,13 +3,22 @@ var lastWeek = new Date();
 lastWeek.setDate(lastWeek.getDate() - 7);
 
 var lastMonth = new Date();
-lastMonth.setMonth(lastWeek.getMonth() - 1);
+lastMonth.setMonth(lastMonth.getMonth() - 1);
 
 var threeMonths = new Date();
 threeMonths.setMonth(threeMonths.getMonth() - 3);
 
 var sixMonths = new Date();
 sixMonths.setMonth(sixMonths.getMonth() - 6);
+
+var nextMonth = new Date();
+nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+var nextThreeMonths = new Date();
+nextThreeMonths.setMonth(nextThreeMonths.getMonth() + 3);
+
+var nextSixMonths = new Date();
+nextSixMonths.setMonth(nextSixMonths.getMonth() + 6);
 
 
 exports.process = function(item) {
@@ -68,14 +77,14 @@ exports.process = function(item) {
 
     // set deadlineText
     if( item.dueDate ) {
-        if ( item.dueDate.getTime() >= lastMonth.getTime() ) {
+        if ( item.dueDate.getTime() <= nextMonth.getTime() ) {
             item.deadlineText = 'due in less than 1 month';
-        } else if ( item.dueDate.getTime() >= threeMonths.getTime() ) {
+        } else if ( item.dueDate.getTime() <= nextThreeMonths.getTime() ) {
             item.deadlineText = 'due in 1 to 3 months';
-        } else if ( item.dueDate.getTime() >= sixMonths.getTime() ) {
+        } else if ( item.dueDate.getTime() <= nextSixMonths.getTime() ) {
             item.deadlineText = 'due in 3 to 6 months';
         } else {
-            item.deadlineText = 'due after 6 month';
+            item.deadlineText = 'due after 6 months';
         }
     } else {
         item.deadlineText = 'Unspecified due date';

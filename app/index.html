@@ -5,7 +5,7 @@
   	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	
-	<title>WGCA Grants App</title>
+	<title>WGCA Funding Catalog</title>
 
 	<!-- build:js scripts/build.js -->
 	<script src="bower_components/jquery/dist/jquery.js"></script>
@@ -16,13 +16,11 @@
 	<script type="text/javascript" src="js/search.js"></script>
 	<script type="text/javascript" src="js/home.js"></script>
 	<script type="text/javascript" src="js/result.js"></script>
-	<script type="text/javascript" src="js/chart.js"></script>
-	<script type="text/javascript" src="js/compare.js"></script>
-	<script type="text/javascript" src="js/group.js"></script>
 	<!-- endbuild -->
 
 
 	<!-- build:css css/build.css -->
+	<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
 	<link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
 	<link href="css/style.css" rel="stylesheet">
 	<!-- endbuild -->
@@ -34,40 +32,47 @@
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 	<script type="text/javascript">
       google.load('visualization', '1', {packages: ['corechart']});
-      google.setOnLoadCallback(initchart);
+      //google.setOnLoadCallback(initchart);
     </script>
 	
-	<!--
-	<script type="text/javascript">
-		$(window).ready(function(){
-			
-			$("#accordion2").collapse();
-			$("#accordion2").height("auto");
-		});
-	</script>
-	-->
-
 </head>
 <body>
 
-<div id="home" style="display:none; padding:2% 6%">
-	<div class="jumbotron">
-	  <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> WCGA Grants App</h1>
-	  <p>Welcome to the WGCA Grants App.</p>
-	  <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Enter</a></p>
+<div id="home" class="page">
+
+	<div class="jumbotron" style="text-align:center;background-color:white">
+		<div style="display:inline-block; text-align:left">
+			<h1 style="margin:0 3px;">
+				<span class="dark-blue">WEST COAST GOVERNORS</span><br />
+				<span class="light-blue">ALLIANCE</span> <small class="dark-blue">on</small>
+				<span class="light-blue">OCEAN HEALTH</span>
+			</h1>
+			<h5 style="margin:0;text-align:right" class="dark-blue">CALIFORNIA OREGON WASHINGTON</h5>
+		</div>
 	</div>
-	
+	<div class="jumbotron" style="text-align:center; ">
+	  <h2 style="margin-top:0;text-shadow: 2px 2px 0px white; ">Climate Change Action Coordination Team</h2>
+	  <p>Funding Catalog</p>
+	  <p style="margin-top: 75px">
+	  	<a href="#wizard" class="btn btn-primary btn-lg" role="button"><i class="fa fa-magic"></i>  Wizard</a>
+	  	<a href="#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Search</a>
+	  	<a href="#Add" class="btn btn-primary btn-lg" role="button"><i class="fa fa-plus"></i>  Add</a>
+	  </p>
+	</div>
 </div>
 
 <div id="search" style="display:none; padding:2% 6%">
 	<div class="page-header" style="margin:0px">
 		<div class="row">
 			<div class="col-md-9">
-				<h4>WGCA Grant Search</h4>
+				<h4>WGCA Funding Catalog</h4>
 			</div>
 			<div class="col-md-3">
-				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px">
+				<a class='btn btn-primary pull-right' href="#home" style="margin:5px">
 					<i class="fa fa-home"></i> Home
+				</a>
+				<a class='btn btn-primary pull-right' href="#wizard" style="margin:5px">
+					<i class="fa fa-magic"></i> Wizard
 				</a>
 			</div>
 		</div>
@@ -94,8 +99,18 @@
 			<div class="well" style="overflow:hidden">
 				<ul class="nav nav-list" id="filter-nav"></ul>
 			</div>
-			<div class="well" style="display:none">
-				<ul class="nav nav-list" id="compare-list"></ul>
+			<div class="well">
+				<h4 class="page-header" style="margin:0">Include Local Rebates</h4>
+				<h6>Search by Zip Code</h6>
+				<input type="text" class="form-control" id="input-search-zipcode" />
+				<div id="input-search-zipcode-help" style="color:#888;font-size: 12px; padding: 5px; background-color: white; display: none">Use commas to search by 
+one or more zip code.</div>
+				<div style="margin: 15px 0 5px 0">
+					<a class="btn btn-default" id="search-add-zipcode">Update</a>
+					<a class="btn btn-default" id="search-clear-zipcode">No Thanks</a>
+				</div>
+				
+				<div style="color:#888;font-size: 12px">Use of zip codes help find relevant rebates in your area.</div>
 			</div>
 		</div>
 		<div class="col-md-9">
@@ -114,45 +129,15 @@
 	</div>
 
 	<div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
-		<div id="current-search-rest-link"></div>
+		<div>
+			<a class="btn btn-link" href="http://www.westcoastoceans.org/">WCGA Home</a>
+		</div>
 	</div>
 
 </div>
 
 <div id="result" style="display:none"></div>
 
-
-<div id="compare" style="display:none">
-	<div class="row">
-		<div class="col-md-9">
-			<h2>Compare</h2>
-		</div>
-		<div class="col-md-3" style="height:40px;padding-top:10px;">
-			<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
-			<a id="compare-back-btn" class="btn btn-primary pull-right" style="margin:5px"><i class="icon-search icon-white"></i> Back to Search</a>
-		</div>
-	</div>
-	<div id="compare-chart"></div>
-	<div id="compare-list-btns"></div>
-</div>
-
-<div id="group" style="display:none; padding:2% 6%">
-	<h2 id="group-header" class="page-header"></h2>
-	<div style="height: 40px">
-		<div class="pull-right">
-			<a class="btn btn-primary" id="group-back-search">Back to Search</a>
-		</div>
-	</div>
-	<div id="group-chart"></div>
-	<div id="group-link" style="text-align:center;margin-bottom:15px"></div>
-	<div id="group-controls" style="text-align:center">
-		<a id="group-prev" class="btn btn-primary">Previous</a>
-		<select id="group-select" style="margin-bottom:0px;width:auto"></select>
-		<a id="group-next" class="btn btn-primary">Next</a>
-
-		<div id="group-loading">Loading...</div>
-	</div>
-</div>
 
 <div id="loading" style="display:none;position:fixed;top:50px;text-align:center;width:100%;" class="animated flipInX">
 	<div class="alert alert-info" style="display:inline-block;box-shadow: 0 0 5px white">Loading...</div>

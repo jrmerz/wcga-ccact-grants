@@ -1,6 +1,23 @@
 /******
  * General CSS
  ******/
+.dark-blue {
+	color: #0b5b9a;
+}
+.light-blue {
+	color: #569fd2;
+}
+.new {
+	color: orange;
+	font-size: 12px;
+	font-style: italic;
+}
+
+
+.page {
+	display: none;
+	padding: 2% 6%;
+}
 
 .card {
 	padding: 15px;

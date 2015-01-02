@@ -1,30 +1,26 @@
-var ESIS = {
-	widgets : {},
-	ckanHost : (window.location.host == 'ecospectra.org') ?
-				'http://data.ecospectra.org' : 'http://192.168.1.6:5000'
+var WCGA = {
+	widgets : {}
 };
 
-ESIS.app = (function() {
+WCGA.app = (function() {
 	
-	var DEFAULT_PAGE = "home";
-	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit", "compare", "group"];
+	var DEFAULT_PAGE = 'home';
+	var validPages = [DEFAULT_PAGE, 'search', 'result', 'suggest', 'wizard'];
 	
-	var cPage = "";
+	var cPage = '';
 	
 	$(document).ready(function() {
 		
-		// mqe.js handles the hash parsing and fires this event
-		$(window).bind("page-update-event", function(e, hash){
+		// mqe.js handles the hash parsing and fires this event when search is complete
+		$(window).bind('page-update-event', function(e, hash){
 			_updatePage(hash[0]);
 			_updatePageContent(hash);
 		});
 		
-		CERES.mqe.init({defaultPage:DEFAULT_PAGE});
-		ESIS.home.init();
-		ESIS.search.init();
-		ESIS.result.init();
-		ESIS.compare.init();
-		ESIS.group.init();
+		MQE.init({defaultPage:DEFAULT_PAGE});
+		WCGA.home.init();
+		WCGA.search.init();
+		WCGA.result.init();
 	});
 	
 	function _updatePage(page) {
@@ -34,39 +30,29 @@ ESIS.app = (function() {
 		
 		if( validPages.indexOf(page) == -1 ) page = DEFAULT_PAGE;
 		
-		$("#"+cPage).hide();
-		$("#"+page).show();
+		$('#'+cPage).hide();
+		$('#'+page).show();
 		
 		cPage = page;
 	}
 	
 	function _updatePageContent(hash) {
-		if ( cPage == "all" ) {
-			ESIS.all.init();
-		} else if ( cPage == "edit" ) {
-			ESIS.edit.init();
-		} else if ( cPage == "compare" ) {
-			ESIS.compare.show();
-		} else if ( cPage == "group" ) {
-			ESIS.group.show();
-		}
+		/*if ( cPage == 'suggest' ) {
+			WGCA.suggest.init();
+		}*/
 	}
 	
 	
 })();
 
 
-ESIS.labels = {};
+WCGA.labels = {};
 
-ESIS.labels.filters = {
-	"groups" : "Group",
-	"package_title" : "Dataset",
-	"keywords" : "Keywords",
-	"organization_name" : "Organization"
+WCGA.labels.filters = {
+	category : 'Category',
+	fundingSource : 'Funding Source',
+	eligibleApplicants : 'Eligible Applicants',
+	assistanceType : 'Assistance Type',
+	awardAmountText : 'Award Amount',
+	deadlineText : 'Deadline'
 };
-ESIS.filters = {
-	"groups" : "ecosis.groups",
-	"package_title" : "ecosis.package_title",
-	"keywords" : "ecosis.keywords",
-	"organization_name" : "ecosis.organization_name"
-}

@@ -1,24 +1,24 @@
-Handlebars.registerHelper('info', function() {
-  return new Handlebars.SafeString(this.info);
-});
-Handlebars.registerHelper('organization', function() {
-  return new Handlebars.SafeString(this.organization);
+Handlebars.registerHelper('new', function() {
+  return new Handlebars.SafeString(this.new);
 });
 
-ESIS.search = (function() {
+WCGA.search = (function() {
 	
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
 	    '<div class="search-result-row animated fadeIn">',
-	    	"<!--<div class='checkbox pull-right'>",
-				"<label>Testing</label>",
-			"</div>-->",
-	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
-	    	"<div style='margin-left:5px'>{{organization}}</div>",
-	    	"<div class='row'>",
-	    		"<div class='col-md-7' style='padding-bottom:10px;'>{{description}}</div>",
-	    		"<div class='col-md-5'>{{info}}</div>",
-	    "</div>"
+	    	'<h4>{{new}}<a href="#result/{{_id}}">{{title}}</a></h4>',
+	    	'<div class="row">',
+	    		'<div class="col-md-3">',
+	    			'<div style="min-height: 75px"><b>Application Cycle</b><br /> <span style="color:#888">{{dueDateNice}}</span></div>',
+	    			'<div style="min-height: 75px"><b>Award Amount</b><br /> <span style="color:#888">{{awardAmountNice}}</span></div>',
+	    		'</div>',
+	    		'<div class="col-md-9">',
+	    			'<div style="color:#333">{{description}}</div>',
+	    			'<div><a href="{{link}}" class="btn btn-link" target="_blank"><i class="fa fa-external-link"></i> Link to Site</a></div>',
+	    		'</div>',
+	    	'</div>',
+	    '</div>'
 	].join('');
 	var TITLE_TEMPLATE = "Search Results: <span style='color:#888'>{{start}} to {{end}} of {{total}}</span>";
 	
@@ -26,11 +26,10 @@ ESIS.search = (function() {
 	var rowTemplate;
 	var titleTemplate;
 	
-	var titleAttr = 'title';
-	var infoAttrs = ['categories', 'eligibleApplicants'];
 
 	var openFilters = [];
 	var staticFilters = {};
+	var activeZipcodes = [];
 	
 	function init() {
 		
@@ -48,30 +47,78 @@ ESIS.search = (function() {
 			_updateFilters(results); // this should always be before adding active filters
 			_updateActiveFilters(results);
 			_updatePaging(results);
-			_updateRestLink();
-			//_updateDownloadLinks();
 		});
 		
 		// set search handlers
 		$("#search-btn").on('click', function(){
 			_search();
 		});
+
 		$("#search-text").on('keypress', function(e){
 			if( e.which == 13 ) _search();
 		});
+
+		$('#input-search-zipcode').on('focus', function(){
+			$('#input-search-zipcode-help').show('slow');
+		}).on('blur', function(){
+			$('#input-search-zipcode-help').hide('slow');
+		}).on('keypress', function(e){
+			if( e.which == 13 ) _setZipcode();
+		});
+
+		$('#search-add-zipcode').on('click', _setZipcode);
+		$('#search-clear-zipcode').on('click', _clearZipcode);
+	}
+
+	function _setZipcode() {
+		var query = MQE.getCurrentQuery();
+
+		// remove current
+		for( var i = 0; i < query.filters.length; i++ ) {
+			if( _isZipFilter(query.filters[i]) ) {
+				query.filters.splice(i,1);
+				break;
+			}
+		}
+
+		var zipcodes = $('#input-search-zipcode').val().replace(/\s/g,'').split(',');
+		query.filters.push({
+			'$or' : [ 
+				{ zipcode : { '$in' : zipcodes }},
+				{ zipcode : { '$exists' : false }}
+			]
+		});
+		$('#input-search-zipcode').val('')
+		query.page = 0;
+		window.location = MQE.queryToUrlString(query);
+	}
+
+	function _clearZipcode() {
+		var query = MQE.getCurrentQuery();
+
+		var zipcode = null;
+		for( var i = 0; i < query.filters.length; i++ ) {
+			if( _isZipFilter(query.filters[i]) ) {
+				zipcode = query.filters.splice(i,1);
+				break;
+			}
+		}
+
+		query.page = 0;
+		if( zipcode ) window.location = MQE.queryToUrlString(query);
 	}
 	
 	function _search() {
-		var query = CERES.mqe.getCurrentQuery();
+		var query = MQE.getCurrentQuery();
 		query.page = 0;
 		query.text = $("#search-text").val();
-		window.location = CERES.mqe.queryToUrlString(query);
+		window.location = MQE.queryToUrlString(query);
 	}
 	
 	
 	function _updateActiveFilters() {
 		var panel = $("#active-filters").html("");
-		var query = CERES.mqe.getCurrentQuery();
+		var query = MQE.getCurrentQuery();
 		
 		// make sure text box is always correct
 		$("#search-text").val(query.text);
@@ -82,12 +129,13 @@ ESIS.search = (function() {
 		
 		for( var i = 0; i < query.filters.length; i++ ) {
 			// get query copy and splice array
-			var tmpQuery = CERES.mqe.getCurrentQuery();
+			var tmpQuery = MQE.getCurrentQuery();
 			tmpQuery.page = 0;
 			
 			var foo = tmpQuery.filters.splice(i,1);
 			
 			var f = "";
+			var addFilter = true;
 			for( var j in query.filters[i] ) {
 				// see if it's a static filter
 				if( typeof query.filters[i][j] == 'object' ) {
@@ -97,14 +145,25 @@ ESIS.search = (function() {
 						// also, make sure to check it's check box
 						$("#static-filter-"+j).prop('checked', true);
 					} else {
-						f = j+': '+JSON.stringify(query.filters[i][j]);
+						var zips = _isZipFilter(query.filters[i]);
+						if( zips ) {
+							_setActiveZips(panel, zips);
+							addFilter = false;
+							break;
+						}
 					}
 				} else {
 					f = query.filters[i][j]; 
 				}	
 			}
 			
-			panel.append($('<a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+			if( addFilter ) {
+				panel.append(
+					$('<a href="' + MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') + 
+						'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small">'+
+						'<i class="fa fa-times" style="color:white"></i> '+f+'</a>')
+				);	
+			}
 			
 		}
 		
@@ -117,7 +176,7 @@ ESIS.search = (function() {
 		panel.append($('<li class="nav-header">Narrow Your Search</li>'));
 		panel.append($('<li class="divider"></li>'));
 		
-		var numFilters = CERES.mqe.getCurrentQuery().filters.length;
+		var numFilters = MQE.getCurrentQuery().filters.length;
 
 		// add filter blocks
 		var c = 0;
@@ -125,7 +184,7 @@ ESIS.search = (function() {
 			if( results.filters[key].length == 0 ) continue;
 			
 			
-			var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+			var label = WCGA.labels.filters[key] ? WCGA.labels.filters[key] : key;
 			
 			var title = $("<li><a id='filter-block-title-"+key.replace(/\s/g,"_")+"' class='search-block-title'>"+label+"</a></li>");
 			
@@ -135,14 +194,14 @@ ESIS.search = (function() {
 			
 			for( var i = 0; i < results.filters[key].length; i++ ) {
 				var item = results.filters[key][i];
-				var query = CERES.mqe.getCurrentQuery();
+				var query = MQE.getCurrentQuery();
 				query.page = 0;
-				
+
 				var filter = {};
-				filter[ESIS.filters[key] ? ESIS.filters[key] : key] = item.filter;
+				filter[key] = item.filter;
 				query.filters.push(filter);
 				
-				block.append($('<li><a href="'+CERES.mqe.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
+				block.append($('<li><a href="'+MQE.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
 			}
 			
 			title.append(block);
@@ -171,7 +230,7 @@ ESIS.search = (function() {
 	}
 	
 	function _updatePaging(results) {
-		var tmpQuery = CERES.mqe.getCurrentQuery();
+		var tmpQuery = MQE.getCurrentQuery();
 		var numPages = Math.ceil( parseInt(results.total) / tmpQuery.itemsPerPage );
 		var cPage = Math.floor( parseInt(results.start+1) / tmpQuery.itemsPerPage );
 		
@@ -197,13 +256,13 @@ ESIS.search = (function() {
 		// add back button
 		if( cPage != 0 ) {
 			tmpQuery.page = cPage-1;
-			panel.append($('<li><a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
+			panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
 		}
 		
 		for( var i = startBtn; i < endBtn; i++ ) {
 			var label = i+1;
 			tmpQuery.page = i;
-			var btn = $('<li><a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
+			var btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
 			if( cPage == i ) btn.addClass('active');
 			panel.append(btn);
 		}
@@ -211,7 +270,7 @@ ESIS.search = (function() {
 		// add next button
 		if(  cPage != numPages-1 && numPages != 0 ) {
 			tmpQuery.page = cPage+1;
-			panel.append($('<li><a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
+			panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
 		}
 		
 	}
@@ -230,6 +289,58 @@ ESIS.search = (function() {
 			total : results.total
 		}));
 	}
+
+	function _setActiveZips(panel, zips) {
+		activeZipcodes = zips;
+
+		for( var i = 0; i < zips.length; i++ ) {
+			var btn = $('<a style="margin:0 5px 5px 0" zip="'+zips[i]+'" class="btn btn-primary btn-small">'+
+							'<i class="fa fa-times" style="color:white"></i> '+zips[i]+'</a>'
+						).on('click', _removeZip);
+			panel.append(btn);	
+		}
+	}
+
+	function _isZipFilter(filter) {
+		if( filter['$or'] === undefined ) return false;
+		if( !Array.isArray(filter['$or']) ) return false;
+
+		var zips = [];
+		for( var i = 0; i < filter['$or'].length; i++ ) {
+			if( filter['$or'][i].zipcode === undefined ) {
+				return false;
+			} else if ( filter['$or'][i].zipcode['$in'] !== undefined ) {
+				return filter['$or'][i].zipcode['$in'];
+			}
+		}
+		return false;
+	}
+
+	function _removeZip(e) {
+		var zip = e.currentTarget.getAttribute('zip');
+		var query = MQE.getCurrentQuery();
+
+		// remove current
+		for( var i = 0; i < query.filters.length; i++ ) {
+			if( _isZipFilter(query.filters[i]) ) {
+				query.filters.splice(i,1);
+				break;
+			}
+		}
+
+		activeZipcodes.splice(activeZipcodes.indexOf(zip), 1);
+		if( activeZipcodes.length > 0 ) {
+			query.filters.push({
+				'$or' : [ 
+					{ zipcode : { '$in' : activeZipcodes }},
+					{ zipcode : { '$exists' : false }}
+				]
+			});
+		}
+
+		query.page = 0;
+		window.location = MQE.queryToUrlString(query);
+	}
 	
 	function _updateResults(results) {
 		var panel = $("#results-panel").html("");
@@ -238,58 +349,58 @@ ESIS.search = (function() {
 			panel.append("<div style='font-style:italic;color:#999;padding:15px 10px'>No results found for your current search.</div>");
 			return;
 		}
-		
-		//ESIS.chart.clearSearchCharts();
+
 		for( var i = 0; i < results.items.length; i++ ) {
 			var item = results.items[i];
-			var info = _getInfo(item);
-			
+
 			panel.append(rowTemplate({
-				_id     : item._id,
-				title   : _getTitle(item),
-				organization   : _getOrganization(item),
-				description : _getDescription(item),
-				info    : info,
-				isChecked : ESIS.compare.selected(item._id)
+				_id         : item._id,
+				title       : item.title,
+				description : (item.description.length > 500) ? item.description.substring(0,500) + '...' : item.description,
+				link        : item.link,
+				'new'       : _getNewHtml(item),
+				dueDateNice : _getNiceDate(item.dueDate),
+				awardAmountNice : _getNiceDollars(item.estimatedFunding),
 			}));
-		//	ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
-			
 		}
-		//ESIS.chart.redrawSearchCharts(true);
 	}
 
-	function _getInfo(item) {
-		var info = "<ul>";
+	function _getNewHtml(item) {
+		if( !item.postDate ) return '';
 
-		for( var i = 0; i < infoAttrs.length; i++ ) {
-			if( item[infoAttrs[i]] ) {
+		var now = new Date();
+		now.setMonth(now.getMonth()-1);
 
-				var arr = item[infoAttrs[i]];
-				var key = infoAttrs[i];
-				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+		var posted = new Date(item.postDate);
+		
 
-				info += "<li><b>"+label+": </b>";
-				for( var j = 0; j < arr.length; j++ ) {
-					if( _hasFilter(item,arr[j]) ) info += arr[j];
-					else info += '<a href="'+_createFilterUrl(key, arr[j])+'">'+arr[j]+'</a>';
-					
-					if( j == 5 && j != arr.length - 1 ) {
-						info += ' ...';
-						break;
-					}
-					if( j < arr.length-1 ) info += ', ';
-
-				}
-				info += '</li>';
-			}
+		if( now.getTime() < posted.getTime() ) {
+			return '<span class="new"><i class="fa fa-star-o"></i> New</span> ';
 		}
-		
-		
-		
-		info += "</ul>";
-		return info;
+		return '';
 	}
 
+	function _getNiceDate(date) {
+		if( !date ) return '';
+		date = new Date(date);
+		return [date.getMonth()+1,
+				date.getDate(),
+				date.getYear()+1900].join('/');
+	}
+
+	function _getNiceDollars(amount) {
+		if( !amount ) return 'Unknown';
+
+		var formatted = '';
+		amount = (amount+'').split('');
+		var c = 0;
+		for( var i = amount.length-1; i >= 0; i-- ) {
+			c++;
+			if( c % 3 == 0 && i != 0) amount.splice(i,0,',');
+		}
+
+		return '$'+amount.join('');
+	}
 
 	function _hasFilter(item, key) {
 		var filter = {};

@@ -58,7 +58,12 @@ var etlConfig = {
 
 exports.run = function(collection, callback) {
     var date = new Date();
-    date = [date.getYear()+1900, date.getMonth()+1, date.getDate()].join('');
+    var m = date.getMonth()+1;
+    var d = date.getDate();
+    if( m < 10 ) m = '0'+m;
+    if( d < 10 ) d = '0'+d;
+
+    date = [date.getYear()+1900, m, d].join('');
 
     if( checkCache(date) ) {
         console.log('Using cache');

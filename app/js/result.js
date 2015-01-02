@@ -1,4 +1,4 @@
-ESIS.result = (function() {
+WCGA.result = (function() {
 	
 	var resultTemplate = null;
 	
@@ -52,7 +52,7 @@ ESIS.result = (function() {
 		var metadata = '<table class="table">';
 		for( var key in result ) {
 			if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
-				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+				var label = WCGA.labels.filters[key] ? WCGA.labels.filters[key] : key;
 
 				metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
 			}
@@ -87,13 +87,13 @@ ESIS.result = (function() {
 	function wrapFilterLink(key, value, icon) {
 		if( value.length > 30 ) return value;
 
-		var q = CERES.mqe.getCurrentQuery();
+		var q = MQE.getCurrentQuery();
 		q.text = '';
 		q.page = 0;
 		var f = {};
 		f[key] = value;
 		q.filters = [f];
-		return '<a href="'+CERES.mqe.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
+		return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
 					(icon ? '<i class="fa fa-filter"></i> ' : '')+value+'</a>';
 	}
 	
