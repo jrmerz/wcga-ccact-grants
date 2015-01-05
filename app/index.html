@@ -18,6 +18,7 @@
 	<script type="text/javascript" src="js/result.js"></script>
 	<!-- endbuild -->
 
+	<script type="text/javascript" src="http://s7.addthis.com/js/200/addthis_widget.js"></script>
 
 	<!-- build:css css/build.css -->
 	<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
@@ -62,7 +63,7 @@
 </div>
 
 <div id="search" style="display:none; padding:2% 6%">
-	<div class="page-header" style="margin:0px">
+	<div class="page-header" style="margin:0px;border:none">
 		<div class="row">
 			<div class="col-md-9">
 				<h4>WGCA Funding Catalog</h4>
@@ -79,6 +80,7 @@
 	</div>
 	
 
+	<!-- normal mqe style
 	<div class="well form-search">
 		<div class="row">
 			<div class="col-md-5" >
@@ -90,6 +92,70 @@
 				</div>
 			</div>
 			<div class="col-md-6" id="active-filters"></div>
+		</div>
+	</div> -->
+
+	<div class="well form-search">
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="input-group" style="max-width: 450px">
+					<input id="search-text" type="text" class="form-control"  >
+				  	<span class="input-group-btn">
+			        	<button id="search-btn" class="btn btn-default" type="button"><i class="fa fa-search"></i> Search</button>
+			      	</span>
+				</div>
+			</div>
+			<div class="col-sm-4" style="text-align:right">
+				<a class="btn btn-link" data-toggle="collapse" href="#collapseFilters" aria-expanded="false" aria-controls="collapseFilters">
+		  			Your Selections <i class="fa fa-arrow-circle-o-down"></i>
+				</a>
+			</div>
+		</div>
+		
+		<div class="collapse in" id="collapseFilters" style="margin-top: 15px">
+			<div class="filters-box">
+				<div class="row">
+					<div class="col-md-4" >
+						<div class="checkbox">
+						    <label>
+						      <input type="checkbox" id="filters-new"> Only Show What's <span class="new"><i class="fa fa-star-o"></i> New</span>
+						    </label>
+						</div>
+						<div>
+							<b>Assitance Type:</b>
+							<div id="filters-assistanceType"></div>
+						</div>
+						<div>
+							<b>Eligible Applicants:</b>
+							<div id="filters-eligibleApplicants"></div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div>
+							<b>Funding Range:</b>
+							<div id="filters-awardAmountText"></div>
+						</div>
+						<div>
+							<b>Deadline:</b>
+							<div id="filters-deadlineText"></div>
+						</div>
+						<div>
+							<b>Categories:</b>
+							<div id="filters-category"></div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div>
+							<b>Find Local Rebates:</b>
+							<div id="filters-zipCodes"></div>
+						</div>
+						<div>
+							<b>Additional Filters:</b>
+							<div id="filters-other"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -115,16 +181,24 @@ one or more zip code.</div>
 		</div>
 		<div class="col-md-9">
 			<div class="page-header" style="margin:10px 0 0 0">
-					<div class="row">
-						<div class="col-md-6">
-							<h4 id="results-title">Search Results</h4>
-						</div>
-						<div class="col-md-6">
-							<ul id="search-paging-btns" class="pagination pull-right" style="margin:0px"></ul>
-						</div>
+				<div class="row">
+					<div class="col-md-6">
+						<h4 class="results-title">Search Results</h4>
 					</div>
+					<div class="col-md-6">
+						<ul class="search-paging-btns pagination pull-right" style="margin:0px"></ul>
+					</div>
+				</div>
 			</div>
 			<div id="results-panel"></div>
+			<div class="row" style="margin-top: 20px">
+				<div class="col-md-6">
+					<h4 class="results-title">Search Results</h4>
+				</div>
+				<div class="col-md-6">
+					<ul class="search-paging-btns pagination pull-right" style="margin:0px"></ul>
+				</div>
+			</div>
 		</div>
 	</div>
 

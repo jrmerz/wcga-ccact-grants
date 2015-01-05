@@ -1,3 +1,10 @@
+Handlebars.registerHelper('ifCond', function(v1, options) {
+  if( v1 !== undefined && v1 !== '') {
+    return options.fn(this);
+  }
+  return options.inverse(this);
+});
+
 WCGA.result = (function() {
 	
 	var resultTemplate = null;
@@ -24,7 +31,6 @@ WCGA.result = (function() {
 		});
 		
 		$(window).bind('result-update-event', function(e, result){
-			console.log(result);
 			updateResult(result);
 		});
 	}
@@ -42,67 +48,75 @@ WCGA.result = (function() {
 			return;
 		}
 		
-		var resultPanel = $("#result");
-
-		result.ecosis._title = getTitle(result);
-
-		resultPanel.html(getResultHtml(result));
+		$('#result').html(getResultHtml(result));
 		
-
-		var metadata = '<table class="table">';
-		for( var key in result ) {
-			if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
-				var label = WCGA.labels.filters[key] ? WCGA.labels.filters[key] : key;
-
-				metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
-			}
-		}
-		metadata += '</table>';
-
-		resultPanel.find("#result-metadata").html(metadata);
-
-		$("#result-back-btn").on('click', function(){
-			$(window).trigger("back-to-search-event");
-		});
-
-		// set nav handler
-		$('a[goto]').on('click', function(){
-			var heading = $(this).attr('goto');
-			if( !heading || heading == '' ) return;
-
-			$('body,html').animate({scrollTop: $('#'+heading).offset().top-120}, 500);
+		$('.result-back-btn').on('click', function(){
+			$(window).trigger('back-to-search-event');
 		});
 	}
 
 
-	function wrapFilterLinks(key, values) {
-		var links = '';
-		for( var i = 0; i < values.length; i++ ) {
-			links += wrapFilterLink(key, values[i]);
-			if( i < values.length-1 ) links += ', ';
-		}
-		return links;
-	}
-
-	function wrapFilterLink(key, value, icon) {
-		if( value.length > 30 ) return value;
-
-		var q = MQE.getCurrentQuery();
-		q.text = '';
-		q.page = 0;
-		var f = {};
-		f[key] = value;
-		q.filters = [f];
-		return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
-					(icon ? '<i class="fa fa-filter"></i> ' : '')+value+'</a>';
-	}
-	
 	function getResultHtml(result) {
+		var dataTemplate = {
+			cUrl : window.location.href,
+			title : result.title || '',
+			link  : result.link || '',
+			description : result.description ? result.description.replace(/\n/g,'<br />') : '',
+			assistanceType : result.assistanceType ? result.assistanceType.join(', ') : 'Unknown',
+			organization : result.organization || '',
+			contact : result.contact || '',
+			CFDANumber : result.CFDANumber || '',
+			fundingOppNumber : result.fundingOppNumber || '',
+			dueDate : formatDate(result.dueDate),
+			office : result.office,
+			category : result.category ? result.category.join('<br />') : '',
+			costSharing : result.costShareText || '',
+			eligibleApplicants : result.eligibleApplicants ? result.eligibleApplicants.join('<br />') : '',
+			additionalEligibilityInfo : result.additionalEligibilityInfo ? result.additionalEligibilityInfo.replace(/\n/g,'<br />') : ''
+		}
 
-		result.isChecked = ESIS.compare.selected(result._id);
+		// TODO: regex replace urls
+		//dataTemplate.description = dataTemplate.description.replace(/(http:\/\/.)/g, '$1 ' )
 
-		return resultTemplate(result);
-		
+		// set amount
+		if( dataTemplate.minAmount !== undefined && result.maxAmount !== undefined ) {
+			dataTemplate.amount = formatDollars(result.minAmount)+' - '+formatDollars(result.maxAmount);
+		} else if ( result.estimatedFunding !== undefined ) {
+			dataTemplate.amount = formatDollars(result.estimatedFunding);
+		} else {
+			dataTemplate.amount = 'Unknown';
+		}
+
+		// set the ical url
+		dataTemplate.ical = '/rest/ical?title=' + encodeURIComponent(dataTemplate.title) +
+			'&dueDate=' + encodeURIComponent(result.dueDate) +
+			'&url=' + encodeURIComponent(window.location.href);
+
+		return resultTemplate(dataTemplate);
+	}
+
+	function formatDate(date) {
+		if( !date ) return '';
+		date = new Date(date);
+
+		return [
+			date.getMonth()+1,
+			date.getDate(),
+			date.getYear()+1900
+		].join('/');
+	}
+
+	function formatDollars(amount) {
+		if( !amount ) return '$0';
+		if( typeof amount != 'string' ) amount = amount+'';
+
+		amount = amount.split('');
+		var c = 0;
+		for( var i = amount.length-1; i >= 0; i-- ) {
+			c++;
+			if( c % 3 == 0 && i != amount.length-1 ) amount.splice(i,0,',');
+		}
+		return '$'+amount.join('');
 	}
 
 	

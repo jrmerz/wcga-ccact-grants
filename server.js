@@ -6,23 +6,28 @@
  * 
  */
 var config = require(process.argv[2]);
-
-var ObjectId = require('mongodb').ObjectID;
-var CursorStream = require('mongodb').CursorStream;
-var async = require('async');
-
-var data = require('./lib/data.js');
-
-var exec = require('child_process').exec;
-
-var collection;
-
-var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
+var ical = require('ical-generator');
 
 // express app
 exports.bootstrap = function(server) {
     var db = server.mqe.getDatabase();
 
+
+    server.app.get('/rest/ical', function(req, resp){
+        cal = ical();
+        cal.setDomain('westcoastoceans.org').setName(req.query.title);
+
+        cal.addEvent({
+            start: new Date(req.query.dueDate),
+            end: new Date(req.query.dueDate),
+            summary: req.query.title,
+            description: 'Application Due Date',
+            url: req.query.url,
+            allDay: true
+        });
+
+        cal.serve(resp);
+    });
 
     if( config.dev ) {
         server.app.use("/", server.express.static(__dirname+"/app"));

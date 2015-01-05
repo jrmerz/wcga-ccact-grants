@@ -7,12 +7,20 @@
 .light-blue {
 	color: #569fd2;
 }
+.light-gray {
+	color: #888;
+}
 .new {
 	color: orange;
 	font-size: 12px;
 	font-style: italic;
 }
-
+.filters-box {
+	padding: 15px;
+	background-color: white;
+	box-shadow: 0 0 3px #888 inset;
+	border-radius: 3px;
+}
 
 .page {
 	display: none;

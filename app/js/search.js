@@ -1,13 +1,9 @@
-Handlebars.registerHelper('new', function() {
-  return new Handlebars.SafeString(this.new);
-});
-
 WCGA.search = (function() {
 	
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
 	    '<div class="search-result-row animated fadeIn">',
-	    	'<h4>{{new}}<a href="#result/{{_id}}">{{title}}</a></h4>',
+	    	'<h4>{{{new}}}<a href="#result/{{_id}}">{{title}}</a></h4>',
 	    	'<div class="row">',
 	    		'<div class="col-md-3">',
 	    			'<div style="min-height: 75px"><b>Application Cycle</b><br /> <span style="color:#888">{{dueDateNice}}</span></div>',
@@ -66,6 +62,11 @@ WCGA.search = (function() {
 			if( e.which == 13 ) _setZipcode();
 		});
 
+		$('#filters-new').on('click', function(){
+			if( $(this).is(':checked') ) _setNewFilter();
+			else _removeNewFilter();
+		});
+
 		$('#search-add-zipcode').on('click', _setZipcode);
 		$('#search-clear-zipcode').on('click', _clearZipcode);
 	}
@@ -114,59 +115,144 @@ WCGA.search = (function() {
 		query.text = $("#search-text").val();
 		window.location = MQE.queryToUrlString(query);
 	}
-	
-	
+
 	function _updateActiveFilters() {
-		var panel = $("#active-filters").html("");
 		var query = MQE.getCurrentQuery();
 		
 		// make sure text box is always correct
 		$("#search-text").val(query.text);
 		
-		if( query.filters.length == 0 ) return;
-		
-		panel.append("<h6 style='margin-top:0px'>You are currently searching for:</h6>");
-		
+		var filterCategories = {
+			assistanceType : 'All Assistance Types',
+			eligibleApplicants : 'All Applicant Types',
+			awardAmountText : 'All Funding Ranges',
+			deadlineText : 'Any Deadline',
+			category : 'All Categories'
+		}
+
+		for( var key in filterCategories ) {
+			var arr = getCatActiveFilters(query.filters, key);
+
+			if( arr.length == 0 ) {
+				$('#filters-'+key).html('<ul style="list-style:none"><li class="light-gray">'+filterCategories[key]+'<li></ul>');
+			} else {
+				var html = '<ul style="list-style:none">';
+				for( var i = 0; i < arr.length; i++ ) {
+					var tmpQuery = MQE.getCurrentQuery();
+					tmpQuery.page = 0;
+					removeFilter(tmpQuery.filters, key, arr[i]);
+
+					html += '<li><a href="' + MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') + 
+						'"><i class="fa fa-times"></i> '+arr[i][key]+'</a></li>'
+				}
+				$('#filters-'+key).html(html+'</ul>');
+			}
+		}
+
+		_setActiveZips(query.filters);
+
+		// set new checkbox
+		$('#filters-new').prop('checked', false);
 		for( var i = 0; i < query.filters.length; i++ ) {
-			// get query copy and splice array
+			var key = Object.keys(query.filters[i])[0];
+			if( key == 'postDate' ) {
+				$('#filters-new').prop('checked', true);
+				query.filters.splice(i,1);
+				break;
+			}
+		}
+
+		// add other filters
+		var html = '<ul style="list-style:none">';
+		for( var i = 0; i < query.filters.length; i++ ) {
+			var key = Object.keys(query.filters[i])[0];
+
 			var tmpQuery = MQE.getCurrentQuery();
 			tmpQuery.page = 0;
 			
-			var foo = tmpQuery.filters.splice(i,1);
+			removeFilter(tmpQuery.filters, key, query.filters[i]);
 			
-			var f = "";
-			var addFilter = true;
-			for( var j in query.filters[i] ) {
-				// see if it's a static filter
-				if( typeof query.filters[i][j] == 'object' ) {
-					if( staticFilters[j] ) {
-						// grab label from static filter
-						f = staticFilters[j].label;
-						// also, make sure to check it's check box
-						$("#static-filter-"+j).prop('checked', true);
-					} else {
-						var zips = _isZipFilter(query.filters[i]);
-						if( zips ) {
-							_setActiveZips(panel, zips);
-							addFilter = false;
-							break;
-						}
-					}
-				} else {
-					f = query.filters[i][j]; 
-				}	
-			}
-			
-			if( addFilter ) {
-				panel.append(
-					$('<a href="' + MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') + 
-						'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small">'+
-						'<i class="fa fa-times" style="color:white"></i> '+f+'</a>')
-				);	
-			}
-			
+			html += '<li><a href="' + MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') + 
+					'"><i class="fa fa-times"></i> '+query.filters[i][key]+'</a></li>'
 		}
+		if( query.filters.length == 0 ) html += '<li class="light-gray">None<li>';
+		$('#filters-other').html(html+'</ul>');
+	}
+
+	function _setNewFilter() {
+		var tmpQuery = MQE.getCurrentQuery();
+		tmpQuery.page = 0;
+
+		var lastMonth = new Date();
+		lastMonth.setMonth(lastMonth.getMonth()-1);
+
+		tmpQuery.filters.push({
+			postDate : { $gte: lastMonth }
+		});
+
+		window.location = MQE.queryToUrlString(tmpQuery);
+	}
+
+	function _removeNewFilter() {
+		var tmpQuery = MQE.getCurrentQuery();
+		tmpQuery.page = 0;
 		
+		for( var i = 0; i < tmpQuery.filters.length; i++ ) {
+			var key = Object.keys(tmpQuery.filters[i])[0];
+			if( key == 'postDate' ) {
+				tmpQuery.filters.splice(i, 1);
+				break;
+			}
+		}
+		window.location = MQE.queryToUrlString(tmpQuery);
+	}
+
+	function _setActiveZips(filters) {
+		var hasZips = false;
+		activeZipcodes = [];
+
+		for( var i = 0; i < filters.length; i++ ) {
+			var zips = _isZipFilter(filters[i]);
+			if( !zips ) continue;
+
+			filters.splice(i,1);
+			activeZipcodes = zips;
+
+			var html = '<ul style="list-style:none">';
+			for( var i = 0; i < zips.length; i++ ) {
+				html += '<li><a style="cursor:pointer" zip="'+zips[i]+'"><i class="fa fa-times" ></i> '+zips[i]+'</a></li>';
+			}
+
+			$('#filters-zipCodes').html(html+'</ul>');
+			$('#filters-zipCodes a').on('click', _removeZip);
+			hasZips = true;
+			break;
+		}
+
+		if( !hasZips ) {
+			$('#filters-zipCodes').html('<ul style="list-style:none"><li class="light-gray">Not Included<li></ul>');
+		}
+	}
+
+	function removeFilter(filters, key, val) {
+		for( var i = 0; i < filters.length; i++ ) {
+			if( filters[i][key] == val[key] ) {
+				filters.splice(i, 1);
+				return;
+			}
+		}
+	}
+
+	function getCatActiveFilters(filters, cat) {
+		var array = [];
+		for( var i = filters.length - 1; i >= 0; i-- ) {
+			var key = Object.keys(filters[i])[0];
+			if( key == cat ) {
+				array.push(filters[i]);
+				filters.splice(i, 1);
+			}
+		}
+		return array;
 	}
 	
 	function _updateFilters(results) {
@@ -176,8 +262,21 @@ WCGA.search = (function() {
 		panel.append($('<li class="nav-header">Narrow Your Search</li>'));
 		panel.append($('<li class="divider"></li>'));
 		
-		var numFilters = MQE.getCurrentQuery().filters.length;
+		var activeFilters = MQE.getCurrentQuery().filters;
 
+		// first all active filters
+		for( var i = 0; i < activeFilters.length; i++ ) {
+			var key = Object.keys(activeFilters[i])[0];
+			if( !results.filters[key] ) continue;
+
+			var val = activeFilters[i][key];
+			for( var j = results.filters[key].length - 1; j >= 0; j-- ) {
+				if( results.filters[key][j].filter == val ) {
+					results.filters[key].splice(j, 1);
+				}
+			}
+		}
+		
 		// add filter blocks
 		var c = 0;
 		for( var key in results.filters ) {
@@ -250,7 +349,7 @@ WCGA.search = (function() {
 			if( endBtn > numPages ) endBtn = numPages;
 		}
 		
-		var panel = $("#search-paging-btns");
+		var panel = $(".search-paging-btns");
 		panel.html("");
 		
 		// add back button
@@ -283,22 +382,11 @@ WCGA.search = (function() {
 		if( end == 0 ) start = 0;
 		
 		
-		$("#results-title").html(titleTemplate({
+		$(".results-title").html(titleTemplate({
 			start : start,
 			end   : end,
 			total : results.total
 		}));
-	}
-
-	function _setActiveZips(panel, zips) {
-		activeZipcodes = zips;
-
-		for( var i = 0; i < zips.length; i++ ) {
-			var btn = $('<a style="margin:0 5px 5px 0" zip="'+zips[i]+'" class="btn btn-primary btn-small">'+
-							'<i class="fa fa-times" style="color:white"></i> '+zips[i]+'</a>'
-						).on('click', _removeZip);
-			panel.append(btn);	
-		}
 	}
 
 	function _isZipFilter(filter) {

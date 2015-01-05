@@ -1,86 +1,89 @@
 <script id="result-template" type="text/x-handlebars-template">
 
-
-	<div class="navbar navbar-default navbar-fixed-top">
-	  <div class="container-fluid">
-	 	<div class="navbar-header" style="width:100%;margin:0px">
-
-	 		<div style="display:inline-block" class="hidden-xs">
-	 			<a class="btn btn-link navbar-btn" goto="package">Dataset Information</a>
-		 		<a class="btn btn-link navbar-btn" goto="metadata">Search Filters</a>
-		 		<a class="btn btn-link navbar-btn" goto="chart">Inspect</a>
-		 		<a class="btn btn-link navbar-btn" goto="download">Download</a>
-	 		</div>
-
-	 		<div style="display:inline-block" >
-	 			<!-- Single button -->
-				<div class="btn-group visible-xs">
-				  <button type="button" class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-				    Go To <span class="caret"></span>
-				  </button>
-				  <ul class="dropdown-menu" role="menu" style="margin-top:50px">
-				    <li><a goto="package">Dataset Information</a></li>
-				    <li><a goto="metadata">Search Filters</a></li>
-				    <li><a goto="chart">Inspect</a></li>
-				    <li><a goto="download">Download</a></li>
-				  </ul>
-				</div>
-	 		</div>
-
-	 		<a id="result-back-btn" class="btn btn-link navbar-btn pull-right" >
-	 			<i class="fa fa-search"></i> Back to Search
-	 		</a>
-	    	
-			
-	    </div>
-
-	  </div>
+<div style="padding:15px">
+	<div style="text-align:right">
+		<a class="btn btn-link result-back-btn" >
+			<i class="fa fa-reply"></i> Back to Search Results
+		</a>
 	</div>
 
-	<div class="result-padding" style="margin-top:105px">
+	<h2><a class="dark-blue" href="{{link}}" target="_blank">{{title}}</a></h2>
 
-	<div class="result-header">
-		<div style="padding: 0 10px">
-			
-			<table style="width:100%">
-				<tr>
-					<td>
-						<h3 style="margin-top:10px">{{ecosis._title}}</h3>
-					</td><td align="right">
-						<!--<div class='checkbox' style='margin-top: 15px'>
-							<label style="color:#333">
-								<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare
-							</label>
-						</div>-->
-					</td>
-				</tr>
-			</table>
-			
+	<div style="padding:20px; border-bottom: 1px solid #ccc">
+		{{{description}}}
+	</div>
 
-			
+	<h3 class="light-blue">Grant Details</h3>
+
+	<div class="row" style="padding: 10px 0 30px 0; text-align:center">
+		<div class="col-sm-3 col-md-offset-1">
+			<a href="{{link}}" target="_blank"><i class="fa fa-external-link"></i> Link to Grant</a>
+		</div>
+		<div class="col-sm-3">
+			<a href="http://www.addthis.com/bookmark.php?v=20" onmouseover="return addthis_open(this, '', '{{cUrl}}', '{{title}}')" onmouseout="addthis_close()" onclick="return addthis_sendto()">
+				<i class="fa fa-share-alt"></i> Share This
+			</a>
+		</div>
+		<div class="col-sm-3">
+			<a target="_blank" href="{{ical}}"><i class="fa fa-calendar"></i> Add to Calendar</a>
 		</div>
 	</div>
 
-	<div class="card">
-		<h3 id="package" >Dataset</h3>
-		<div id="dataset-content">Loading...</div>
+
+	<div class="row" >
+		<div class="col-md-5 col-md-offset-1">
+			{{#ifCond amount}}
+				<div><b>Amount: </b> <span class="light-gray">{{amount}}</div>
+			{{/ifCond}}
+			{{#ifCond assitanceType}}
+				<div><b>Assistance Type: </b> <span class="light-gray">{{assitanceType}}</div>
+			{{/ifCond}}
+			{{#ifCond organization}}
+				<div><b>Funding Organization: </b> <span class="light-gray">{{organization}}</div>
+			{{/ifCond}}
+			{{#ifCond contact}}
+				<div><b>Contact: </b> <div class="light-gray" style="padding:10px">{{{contact}}}</div></div>
+			{{/ifCond}}
+			{{#ifCond CFDANumber}}
+				<div><b>CFDA Number: </b> <span class="light-gray">
+					<a href="http://apply07.grants.gov/apply/GetGrant?cfda={{CFDANumber}}" target="_blank">{{CFDANumber}}</a>
+				</div>
+			{{/ifCond}}
+			{{#ifCond fundingOppNumber}}
+				<div><b>Funding Opportunity Number: </b> <span class="light-gray">
+					<a href="http://apply07.grants.gov/apply/GetGrant?opportunity={{fundingOppNumber}}" target="_blank">{{fundingOppNumber}}</a>
+				</div>
+			{{/ifCond}}
+		</div>
+		<div class="col-md-5">
+			{{#ifCond dueDate}}
+				<div><b>Application Due Date: </b> <span class="light-gray">{{dueDate}}</div>
+			{{/ifCond}}
+			{{#ifCond office}}
+				<div><b>Office: </b> <span class="light-gray">{{office}}</div>
+			{{/ifCond}}
+			{{#ifCond category}}
+				<div><b>Catagory: </b> <div class="light-gray" style="padding:10px">{{{category}}}</div></div>
+			{{/ifCond}}
+			{{#ifCond costSharing}}
+				<div><b>Cost Sharing: </b> <span class="light-gray">{{costSharing}}</div>
+			{{/ifCond}}
+			{{#ifCond eligibleApplicants}}
+				<div><b>Eligible Applicants: </b> <div class="light-gray" style="padding:10px">{{{eligibleApplicants}}}</div></div>
+			{{/ifCond}}
+		</div>
 	</div>
+
+
+	<div class="row" style="padding: 20px 0">
+		<div class="col-md-10 col-md-offset-1">
+			<b>Additional Eligibility Info:  </b> <div class="light-gray" style="padding:10px">{{{additionalEligibilityInfo}}}</div>
+		</div>
+	</div>
+
+	<a class="btn btn-link pull-right result-back-btn" >
+		<i class="fa fa-reply"></i> Back to Search Results
+	</a>
+</div>
 	
-	<div class="card">
-		<h3 id="metadata" >Filters</h3>
-		<div id="result-metadata"></div>
-	</div>
-
-
-	<div class="card">
-		<esis-data-viewer></esis-data-viewer>
-	</div>
-
-	<div class="card">
-		<h3 class="page-header" id="download" style="border-bottom: none">Download</h3>
-		<esis-data-downloader></esis-data-downloader>
-	</div>
-
-	
-  </div>
 </script>
