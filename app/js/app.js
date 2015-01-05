@@ -5,7 +5,7 @@ var WCGA = {
 WCGA.app = (function() {
 	
 	var DEFAULT_PAGE = 'home';
-	var validPages = [DEFAULT_PAGE, 'search', 'result', 'suggest', 'wizard'];
+	var validPages = [DEFAULT_PAGE, 'search', 'result', 'suggest', 'wizard', 'print'];
 	
 	var cPage = '';
 	
@@ -37,11 +37,10 @@ WCGA.app = (function() {
 	}
 	
 	function _updatePageContent(hash) {
-		/*if ( cPage == 'suggest' ) {
-			WGCA.suggest.init();
-		}*/
+		if ( cPage == 'print' ) {
+			WCGA.print.query(hash);
+		}
 	}
-	
 	
 })();
 

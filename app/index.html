@@ -16,6 +16,8 @@
 	<script type="text/javascript" src="js/search.js"></script>
 	<script type="text/javascript" src="js/home.js"></script>
 	<script type="text/javascript" src="js/result.js"></script>
+	<script type="text/javascript" src="js/print.js"></script>
+	<script type="text/javascript" src="js/saveSearch.js"></script>
 	<!-- endbuild -->
 
 	<script type="text/javascript" src="http://s7.addthis.com/js/200/addthis_widget.js"></script>
@@ -94,6 +96,12 @@
 			<div class="col-md-6" id="active-filters"></div>
 		</div>
 	</div> -->
+
+	<div style="text-align:right">
+		<a id="print-btn" class="btn btn-link"><i class="fa fa-print"></i> Print Report</a>
+		<a id="remove-save-search-btn" class="btn btn-link"><i class="fa fa-trash"></i> Remove Saved Search</a>
+		<a id="save-search-btn" class="btn btn-link"><i class="fa fa-save"></i> Save Search</a>
+	</div>
 
 	<div class="well form-search">
 		<div class="row">
@@ -178,6 +186,11 @@ one or more zip code.</div>
 				
 				<div style="color:#888;font-size: 12px">Use of zip codes help find relevant rebates in your area.</div>
 			</div>
+
+			<div id="current-saved-search" class="well" style="display:none">
+				<h4 class="page-header" style="margin:0">Load Saved Search</h4>
+				<div id="current-saved-search-list"></div>
+			</div>
 		</div>
 		<div class="col-md-9">
 			<div class="page-header" style="margin:10px 0 0 0">
@@ -207,10 +220,37 @@ one or more zip code.</div>
 			<a class="btn btn-link" href="http://www.westcoastoceans.org/">WCGA Home</a>
 		</div>
 	</div>
-
 </div>
 
-<div id="result" style="display:none"></div>
+<div id="current-saved-search-list-preview"></div>
+
+<div class="modal fade" id="saveSearchPopup" tabindex="-1" role="dialog" aria-labelledby="saveSearchLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="saveSearchLabel">Save Search</h4>
+      </div>
+      <div class="modal-body">
+      	<label for="save-search-name">Name:</label>
+      	<input id="save-search-name" type="text" class="form-control"  />
+      	<p class="help-block">Provide a name to remember this search by.</p>
+      	<div id="save-search-content"></div>
+      	<input style="display:none" type="text" id="save-search-value" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="save-search-confirm" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="print" class="page">
+	<div id="print-results"></div>
+</div>
+
+<div id="result" class="page"></div>
 
 
 <div id="loading" style="display:none;position:fixed;top:50px;text-align:center;width:100%;" class="animated flipInX">

@@ -39,7 +39,7 @@ WCGA.search = (function() {
 		$(window).bind("search-update-event", function(e, results){
 			_loading(false);
 			_updateResultsTitle(results);
-			_updateResults(results);
+			updateResults(results);
 			_updateFilters(results); // this should always be before adding active filters
 			_updateActiveFilters(results);
 			_updatePaging(results);
@@ -49,11 +49,11 @@ WCGA.search = (function() {
 		$("#search-btn").on('click', function(){
 			_search();
 		});
-
 		$("#search-text").on('keypress', function(e){
 			if( e.which == 13 ) _search();
 		});
 
+		// zipcode controls
 		$('#input-search-zipcode').on('focus', function(){
 			$('#input-search-zipcode-help').show('slow');
 		}).on('blur', function(){
@@ -61,14 +61,26 @@ WCGA.search = (function() {
 		}).on('keypress', function(e){
 			if( e.which == 13 ) _setZipcode();
 		});
+		$('#search-add-zipcode').on('click', _setZipcode);
+		$('#search-clear-zipcode').on('click', _clearZipcode);
 
+		// print button
+		$('#print-btn').on('click', function(){
+			var query = MQE.getCurrentQuery();
+			query.page = 0;
+			query.itemsPerPage = 100;
+
+			window.open(MQE.queryToUrlString(query).replace(/search/, 'print'),'_blank','menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=no')
+		});
+
+		// new filter control
 		$('#filters-new').on('click', function(){
 			if( $(this).is(':checked') ) _setNewFilter();
 			else _removeNewFilter();
 		});
 
-		$('#search-add-zipcode').on('click', _setZipcode);
-		$('#search-clear-zipcode').on('click', _clearZipcode);
+		// save search controls
+		WCGA.saveSearch.init(_isZipFilter);
 	}
 
 	function _setZipcode() {
@@ -430,8 +442,8 @@ WCGA.search = (function() {
 		window.location = MQE.queryToUrlString(query);
 	}
 	
-	function _updateResults(results) {
-		var panel = $("#results-panel").html("");
+	function updateResults(results, panelId) {
+		var panel = $(panelId || "#results-panel").html("");
 		
 		if( results.items.length == 0 ) {
 			panel.append("<div style='font-style:italic;color:#999;padding:15px 10px'>No results found for your current search.</div>");
@@ -526,7 +538,8 @@ WCGA.search = (function() {
 
 	
 	return {
-		init : init
+		init : init,
+		updateResults : updateResults
 	}
 })();
                    
