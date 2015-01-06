@@ -16,8 +16,11 @@ WCGA.app = (function() {
 			_updatePage(hash[0]);
 			_updatePageContent(hash);
 		});
-		
-		MQE.init({defaultPage:DEFAULT_PAGE});
+
+		MQE.init({
+			defaultPage:DEFAULT_PAGE,
+			resultQueryParameter : 'id'
+		});
 		WCGA.home.init();
 		WCGA.search.init();
 		WCGA.result.init();

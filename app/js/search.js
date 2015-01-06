@@ -3,7 +3,7 @@ WCGA.search = (function() {
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
 	    '<div class="search-result-row animated fadeIn">',
-	    	'<h4>{{{new}}}<a href="#result/{{_id}}">{{title}}</a></h4>',
+	    	'<h4>{{{new}}}<a href="#result/{{id}}">{{title}}</a></h4>',
 	    	'<div class="row">',
 	    		'<div class="col-md-3">',
 	    			'<div style="min-height: 75px"><b>Application Cycle</b><br /> <span style="color:#888">{{dueDateNice}}</span></div>',
@@ -454,7 +454,7 @@ WCGA.search = (function() {
 			var item = results.items[i];
 
 			panel.append(rowTemplate({
-				_id         : item._id,
+				id         : item.id,
 				title       : item.title,
 				description : (item.description.length > 500) ? item.description.substring(0,500) + '...' : item.description,
 				link        : item.link,

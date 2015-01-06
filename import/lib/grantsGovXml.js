@@ -70,6 +70,7 @@ exports.run = function(collection, callback) {
         readCache(date, process, collection, callback);
     } else {
         console.log('requesting...');
+        console.log(url+date+'.zip');
         request(url+date+'.zip')
             .on('end', function(){
                 readCache(date, process, collection, callback);
@@ -102,6 +103,7 @@ function insert(collection, items, callback) {
         items,
         function(item, next){
 
+            item.id = md5(item.link);
             item.md5 = md5(JSON.stringify(item));
 
             collection.findOne({link: item.link}, function(err, mongoItem) {

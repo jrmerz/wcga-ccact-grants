@@ -96,6 +96,7 @@ function getDetails(collection, callback) {
                     vocab.process(obj);
 
                     // set md5 for change checking
+                    item.id = md5(item.link);
                     obj.md5 = md5(JSON.stringify(obj));
 
                     collection.findOne({link: obj.link}, function(err, item) {

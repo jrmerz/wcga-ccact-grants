@@ -30,7 +30,14 @@ WCGA.result = (function() {
 			}
 		});
 		
-		$(window).bind('result-update-event', function(e, result){
+		$(window).bind('result-update-event', function(e, result, error){
+			if( error ) {
+				$('#badness').show();
+				$('#result').hide();
+				return;
+			}
+
+			$('#badness').hide();
 			updateResult(result);
 		});
 	}
@@ -81,8 +88,8 @@ WCGA.result = (function() {
 		// set amount
 		if( dataTemplate.minAmount !== undefined && result.maxAmount !== undefined ) {
 			dataTemplate.amount = formatDollars(result.minAmount)+' - '+formatDollars(result.maxAmount);
-		} else if ( result.estimatedFunding !== undefined ) {
-			dataTemplate.amount = formatDollars(result.estimatedFunding);
+		} else if ( result.awardAmountText !== undefined ) {
+			dataTemplate.amount = result.awardAmountText;
 		} else {
 			dataTemplate.amount = 'Unknown';
 		}
