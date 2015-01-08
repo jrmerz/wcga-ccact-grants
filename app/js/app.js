@@ -8,6 +8,8 @@ WCGA.app = (function() {
 	var validPages = [DEFAULT_PAGE, 'search', 'result', 'suggest', 'wizard', 'print'];
 	
 	var cPage = '';
+
+	var schemaListeners = [];
 	
 	$(document).ready(function() {
 		
@@ -24,6 +26,10 @@ WCGA.app = (function() {
 		WCGA.home.init();
 		WCGA.search.init();
 		WCGA.result.init();
+
+		onSchemaLoad(function(){
+			WCGA.wizard.init();
+		});
 	});
 	
 	function _updatePage(page) {
@@ -43,6 +49,22 @@ WCGA.app = (function() {
 		if ( cPage == 'print' ) {
 			WCGA.print.query(hash);
 		}
+	}
+
+	$.get('/rest/schema', function(resp){
+		WCGA.schema = resp;
+		for( var i = 0; i < schemaListeners.length; i++ ) {
+			schemaListeners[i]();
+		}
+	});
+
+	function onSchemaLoad(fn) {
+		if( WCGA.schema ) fn();
+		else schemaListeners.push(fn);
+	}
+
+	return {
+		onSchemaLoad : onSchemaLoad
 	}
 	
 })();

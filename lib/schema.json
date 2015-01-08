@@ -1,0 +1,130 @@
+{"category":
+
+{
+"Agriculture" : [
+  "Agriculture Conservation",
+  "Forestry",
+  "Organic Farming",
+  "Pesticides Control",
+  "Resource Conservation & Development",
+  "Stabilization and Conservation Service",
+  "Technical Assistance; Information and Services",
+  "Urban Forestry"
+],
+"Air Quality and Climate Change" : [
+  "Air Pollution Control",
+  "Air Quality Improvement",
+  "Climate Action Planning",
+  "Climate Adaptation",
+  "Climate Change Mitigation",
+  "Greenhouse Gas Emission Reduction"
+],
+"Business and Commerce" : [
+  "Economic Development",
+  "Small Business",
+  "Special Technical Service"
+],
+"Education" : [
+  "Educational Equipment and Resources",
+  "Educational Facilities",
+  "Elementary and Secondary",
+  "Environmental Education",
+  "General Research and Evaluation",
+  "Higher Education / General",
+  "Scholarships or Internships",
+  "Teacher Training",
+  "Vocational Development"
+],
+"Energy" : [
+  "Appliances",
+  "Building Envelope",
+  "Demand Response",
+  "Food Service Equipment",
+  "Heating & Cooling",
+  "Lighting",
+  "Manufacturing & Processing",
+  "Outdoors",
+  "Services", 
+  "Whole Building and Systems"
+],
+"Natural Resources Management" : [
+  "Habitat Restoration",
+  "Land Conservation",
+  "Recreation",
+  "Wildlife Research and Preservation"
+],
+"Public Health" : [
+  "Community Health",
+  "Environmental health",
+  "Health Care And Access",
+  "Health Equity"
+],
+"Transportation" : [
+  "Alternative Fueling/Charging Stations",
+  "Biking/Walking",
+  "Clean Air Vehicle",
+  "Demand Reduction",
+  "Public Transportation",
+  "Transportation System Efficiency",
+  "Vehicle Retrofits"
+],
+"Urban Development" : [
+  "Affordable Housing",
+  "Brownfield Cleanup",
+  "Green Building",
+  "Higher Density",
+  "Infill Development",
+  "Land Acquisition; Facilities; Construction",
+  "Mixed Use",
+  "Planning and Technical Development",
+  "Transit-oriented Development",
+  "Urban Revitalization"
+],
+"Waste Management" : [
+  "Hazardous Waste Recycling",
+  "Pollution Prevention",
+  "Recycled Content Products",
+  "Recycling Market Development",
+  "Recycling and Composting",
+  "Source Reduction and Reuse"
+],
+"Water" : [
+  "Coastal Water Quality",
+  "Community Sewage Treatment Assistance",
+  "Community Water Supply Services",
+  "Wastewater Treatment",
+  "Water Conservation Research",
+  "Water Efficiency",
+  "Water Pollution Control",
+  "Water Recycling"
+]},
+
+"eligibleApplicants" : 
+
+{
+"Business" : [],
+"Government" : [
+  "Federal Government",
+  "Local Government",
+  "Regional Government",
+  "Special District",
+  "State Government",
+  "Tribal Government"
+],
+"Individual" : [],
+"Institution" : [
+  "Private Instituation",
+  "Public Institution"
+],
+"Organization" : [
+  "Community Organization",
+  "Educational Organization",
+  "Nonprofit"
+],
+"Other":[],
+"School":[
+  "School District",
+  "Student",
+  "Teacher"
+]}
+}

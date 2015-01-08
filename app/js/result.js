@@ -31,6 +31,10 @@ WCGA.result = (function() {
 		});
 		
 		$(window).bind('result-update-event', function(e, result, error){
+			// double check page
+			var page = window.location.hash.replace(/\/.*/,'');
+			if( page.indexOf('result') == -1 ) return;
+
 			if( error ) {
 				$('#badness').show();
 				$('#result').hide();
@@ -69,21 +73,34 @@ WCGA.result = (function() {
 			title : result.title || '',
 			link  : result.link || '',
 			description : result.description ? result.description.replace(/\n/g,'<br />') : '',
-			assistanceType : result.assistanceType ? result.assistanceType.join(', ') : 'Unknown',
+			assistanceType : result.assistanceType ? result.assistanceType.sort().join(', ') : 'Unknown',
 			organization : result.organization || '',
 			contact : result.contact || '',
 			CFDANumber : result.CFDANumber || '',
 			fundingOppNumber : result.fundingOppNumber || '',
 			dueDate : formatDate(result.dueDate),
 			office : result.office,
-			category : result.category ? result.category.join('<br />') : '',
+			category : result.category ? result.category.sort().join('<br />') : '',
 			costSharing : result.costShareText || '',
-			eligibleApplicants : result.eligibleApplicants ? result.eligibleApplicants.join('<br />') : '',
+			eligibleApplicants : result.eligibleApplicants ? result.eligibleApplicants.sort().join('<br />') : '',
 			additionalEligibilityInfo : result.additionalEligibilityInfo ? result.additionalEligibilityInfo.replace(/\n/g,'<br />') : ''
 		}
 
 		// TODO: regex replace urls
 		//dataTemplate.description = dataTemplate.description.replace(/(http:\/\/.)/g, '$1 ' )
+
+		// is it new?
+		if( result.postDate ) {
+			var now = new Date();
+			now.setMonth(now.getMonth()-1);
+			var posted = new Date(result.postDate);
+			
+			if( now.getTime() < posted.getTime() ) {
+				dataTemplate['new'] = '<span class="new"><i class="fa fa-star-o"></i> New</span> ';
+			}
+		}
+		if( !dataTemplate['new'] ) dataTemplate['new'] = '';
+		
 
 		// set amount
 		if( dataTemplate.minAmount !== undefined && result.maxAmount !== undefined ) {

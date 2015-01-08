@@ -1,13 +1,13 @@
 <script id="result-template" type="text/x-handlebars-template">
 
-<div style="padding:15px">
+
 	<div style="text-align:right">
 		<a class="btn btn-link result-back-btn" >
 			<i class="fa fa-reply"></i> Back to Search Results
 		</a>
 	</div>
 
-	<h2><a class="dark-blue" href="{{link}}" target="_blank">{{title}}</a></h2>
+	<h2><a class="dark-blue" href="{{link}}" target="_blank">{{{new}}}{{title}}</a></h2>
 
 	<div style="padding:20px; border-bottom: 1px solid #ccc">
 		{{{description}}}
@@ -19,12 +19,12 @@
 		<div class="col-sm-3 col-md-offset-1">
 			<a href="{{link}}" target="_blank"><i class="fa fa-external-link"></i> Link to Grant</a>
 		</div>
-		<div class="col-sm-3" style="text-align:center">
+		<div class="col-sm-3 result-link-center" >
 			<a href="http://www.addthis.com/bookmark.php?v=20" onmouseover="return addthis_open(this, '', '{{cUrl}}', '{{title}}')" onmouseout="addthis_close()" onclick="return addthis_sendto()">
 				<i class="fa fa-share-alt"></i> Share This
 			</a>
 		</div>
-		<div class="col-sm-3" style="text-align:right">
+		<div class="col-sm-3 result-link-right">
 			<a target="_blank" href="{{ical}}"><i class="fa fa-calendar"></i> Add to Calendar</a>
 		</div>
 	</div>
@@ -84,6 +84,5 @@
 	<a class="btn btn-link pull-right result-back-btn" >
 		<i class="fa fa-reply"></i> Back to Search Results
 	</a>
-</div>
 	
 </script>

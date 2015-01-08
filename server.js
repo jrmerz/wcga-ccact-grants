@@ -7,11 +7,17 @@
  */
 var config = require(process.argv[2]);
 var ical = require('ical-generator');
+var fs = require('fs');
 
 // express app
 exports.bootstrap = function(server) {
     var db = server.mqe.getDatabase();
 
+
+    server.app.get('/rest/schema', function(req, resp) {
+        resp.setHeader("content-type", "application/json");
+        fs.createReadStream(__dirname+"/lib/schema.json").pipe(resp);
+    });
 
     server.app.get('/rest/counts', function(req, resp){
         var query = server.mqe.queryParser(req);
