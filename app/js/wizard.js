@@ -18,6 +18,8 @@ WCGA.wizard = (function() {
         }.bind(200));
     }
 
+    // todo: perhaps recreate chart completely on show
+
     function updateChart(data) {
         var query = formatQuery(data);
 
@@ -45,6 +47,7 @@ WCGA.wizard = (function() {
                 if( !chart ) {
                     chart = new google.visualization.ColumnChart($('.wizard-chart')[0]);
                 }
+
                 redraw();
             }
         );
@@ -70,6 +73,12 @@ WCGA.wizard = (function() {
             hAxis : {
                 textStyle : {
                     fontSize : 10
+                }
+            },
+            vAxis : {
+                minValue : 0,
+                viewWindow : {
+                    min : 0
                 }
             },
             animation : {

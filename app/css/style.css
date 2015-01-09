@@ -54,6 +54,11 @@ html, body {
 	overflow-x: hidden
 }
 
+.filter-logic {
+	font-weight: bold;
+	font-style: italic;
+}
+
 /* wizard */
 .wizard {
 	background-color: #f8f8f8;

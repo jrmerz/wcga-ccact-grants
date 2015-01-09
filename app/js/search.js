@@ -152,10 +152,22 @@ WCGA.search = (function() {
 				for( var i = 0; i < arr.length; i++ ) {
 					var tmpQuery = MQE.getCurrentQuery();
 					tmpQuery.page = 0;
+
+					var filterName = arr[i][key];
+					if( typeof filterName == 'object' && filterName['$in'] ) {
+						filterName = filterName['$in'].join(' <span class="filter-logic">OR</span> ');
+
+						if( i > 0 ) filterName = '<span class="filter-logic">AND</span> ('+filterName+')';
+					} else {
+						if( i > 0 ) filterName = '<span class="filter-logic">AND</span> '+filterName;
+					}
+					
+
 					removeFilter(tmpQuery.filters, key, arr[i]);
 
+					
 					html += '<li><a href="' + MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') + 
-						'"><i class="fa fa-times"></i> '+arr[i][key]+'</a></li>'
+						'"><i class="fa fa-times"></i> '+filterName+'</a></li>'
 				}
 				$('#filters-'+key).html(html+'</ul>');
 			}
@@ -247,12 +259,19 @@ WCGA.search = (function() {
 	}
 
 	function removeFilter(filters, key, val) {
+		var attrVal = _getStrValue(val, key);
+
 		for( var i = 0; i < filters.length; i++ ) {
-			if( filters[i][key] == val[key] ) {
+			if( _getStrValue(filters[i], key) == attrVal ) {
 				filters.splice(i, 1);
 				return;
 			}
 		}
+	}
+
+	function _getStrValue(key, val) {
+		if( typeof key[val] == 'string' ) return key[val];
+		return JSON.stringify(key[val]);
 	}
 
 	function getCatActiveFilters(filters, cat) {
