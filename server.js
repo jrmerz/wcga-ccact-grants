@@ -19,10 +19,28 @@ exports.bootstrap = function(server) {
         fs.createReadStream(__dirname+"/lib/schema.json").pipe(resp);
     });
 
+    server.app.get('/rest/filters', function(req, resp) {
+        var query = server.mqe.queryParser(req);
+        var options = server.mqe.getOptionsFromQuery(query);
+        server.mqe.filterCounts(options, function(err, result){
+            if( err ) return resp.send({error: true, message: err});
+
+            var filters = {
+                filters : result
+            }
+
+            server.mqe.filterCountsQuery(query, function(err, result){
+                if( err ) return resp.send({error: true, message: err});
+                filters.total = result;
+                resp.send(filters);
+            });
+        });
+    });
+
     server.app.get('/rest/counts', function(req, resp){
         var query = server.mqe.queryParser(req);
 
-        server.mqe.filterCountsQuery(query, function(err, result){;
+        server.mqe.filterCountsQuery(query, function(err, result){
             if( err ) return resp.send({error: true, message: err});
 
             var counts = {

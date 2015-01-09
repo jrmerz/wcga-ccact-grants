@@ -60,7 +60,7 @@ html, body {
 	border: 1px solid #ccc;
 	box-shadow: 0 0 3px #ccc inset;
 	border-radius: 15px;
-	padding: 15px;
+	padding: 15px 15px 0 15px;
 	overflow: hidden;
 }
 .wizard-btn {
@@ -90,14 +90,16 @@ html, body {
 .wizard-panel {
 	background-color: white;
 	text-align: center;
-	padding: 5px;
+	padding: 0 5px;
 	border: 1px solid #ccc;
 	box-shadow: 0 0 5px #eee inset;
 	border-radius: 15px;
-	height: 300px;
+	height: 350px;
+	overflow: auto;
 }
 .wizard-panel h3 {
 	color: #555;
+	margin: 10px 0 5px 0;
 }
 .wizard-panel-help {
 	font-size: 12px;
@@ -107,8 +109,35 @@ html, body {
 	display: inline-block;
 	margin: auto;
 	text-align: left;
-	max-height: 200px;
+	max-height: 250px;
 	overflow: auto;
+	padding: 0 20px;
+}
+.wizard-chart-outer {
+	margin: 0 20px;
+	padding: 10px;
+	border-right: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-radius: 0 0 15px 15px;
+	height: 400px;
+}
+.wizard-chart {
+	height: 380px;
+}
+.wizard-search-root {
+	background-color: white;
+	margin-top: 25px;
+	border-radius: 15px 15px 0 0;
+	padding: 10px 30px;
+	border-left: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+.wizard-num-results-outer {
+	text-align:right; 
+	color: #888;
+	padding-top: 6px;
 }
 /* wizard */
 

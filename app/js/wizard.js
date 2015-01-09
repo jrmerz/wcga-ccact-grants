@@ -1,12 +1,117 @@
 WCGA.wizard = (function() {
 
     var widget;
+    var dt;
+    var chart;
 
     function init() {
         widget = new WCGA.WizardPanel();
         widget.init();
         $('#wizard-root').append(widget.getPanel());
 
+        widget.on('update', updateChart);
+
+        $(window).on('resize', redraw);
+
+        setTimeout(function(){
+            updateChart({});
+        }.bind(200));
+    }
+
+    function updateChart(data) {
+        var query = formatQuery(data);
+
+        $.get('/rest/filters?text='+encodeURIComponent(query.text) +
+            '&filters='+encodeURIComponent(JSON.stringify(query.filters)),
+            function(resp){
+
+                if( resp.total ) $('.wizard-num-results').text(resp.total);
+                else $('.wizard-num-results').text(0);
+                
+                var data = [['Category', 'Count']];
+
+                if( resp.filters && resp.filters.category ) {
+                    for( var i = 0; i < resp.filters.category.length; i++ ) {
+                        var filter = resp.filters.category[i];
+                        data.push([filter.filter, filter.count]);
+                        if( i == 9 ) break;
+                    }
+                } else {
+                    data.push(['',0])
+                }
+
+                dt = google.visualization.arrayToDataTable(data);
+
+                if( !chart ) {
+                    chart = new google.visualization.ColumnChart($('.wizard-chart')[0]);
+                }
+                redraw();
+            }
+        );
+
+        $('#wizard-search-btn').attr('href',
+            '#search/' + encodeURIComponent(query.text) + 
+            '/' + encodeURIComponent(JSON.stringify(query.filters)) +
+            '/0/6'
+        );
+    }
+
+    function redraw() {
+        if( !chart || !dt ) return;
+
+        chart.draw(dt, {
+            title : 'Summary of funding opportunities by category',
+            titleTextStyle : {
+                    fontSize : 10
+            },
+            legend : {
+                position : 'none'
+            },
+            hAxis : {
+                textStyle : {
+                    fontSize : 10
+                }
+            },
+            animation : {
+                duration : 500,
+                easing : 'out'
+            }
+        });
+    }
+
+    function formatQuery(data) {
+        var mqeQuery = {
+            filters : [],
+            text : ''
+        }
+
+        for( var key in data ) {
+            if( key == 'keywords' ) {
+                mqeQuery.text = data.keywords;
+            } else if ( key == 'zipCodes' ) {
+                mqeQuery.filters.push({
+                    '$or' : [ 
+                        { zipcode : { '$in' : data.zipCodes.replace(/\s/g,'').split(',') }},
+                        { zipcode : { '$exists' : false }}
+                    ]
+                });
+            } else if ( Array.isArray(data[key]) ) {
+                if( data[key].length == 1 ) {
+                    var filter = {};
+                    filter[key] = data[key][0];
+                    mqeQuery.filters.push(filter);
+                } else {
+                    var filter = {};
+                    filter[key] = { '$in' : data[key]};
+                    mqeQuery.filters.push(filter);
+                }
+            } else {
+                var filter = {};
+                filter[key] = data[key];
+                mqeQuery.filters.push(filter);
+            }
+        }
+        return mqeQuery;
     }
 
     return {
@@ -14,21 +119,49 @@ WCGA.wizard = (function() {
     }
 })();
 
+
+
+
+
+
+
+
 WCGA.WizardPanel = function(editMode) {
 
     var data = {};
 
     var panel = $(
-        '<div class="wizard">' +
-            '<div class="row">' +
-                '<div class="col-sm-3 wizard-left"></div>' + 
-                '<div class="col-sm-6 wizard-main"></div>' + 
-                '<div class="col-sm-3 wizard-right"></div>' + 
+        '<div>'+
+            '<div class="wizard">' +
+                '<div class="row">' +
+                    '<div class="col-sm-3 wizard-left"></div>' + 
+                    '<div class="col-sm-6 wizard-main">'+
+                        '<div class="wizard-panel-root"></div>'+
+                        '<div class="wizard-search-root">'+
+                            '<div class="row">' +
+                                '<div class="col-sm-6">' +
+                                    '<a class="btn btn-default" id="wizard-search-btn">View Search Results</a>' +
+                                '</div>' +
+                                '<div class="col-sm-6 wizard-num-results-outer">' +
+                                    'Number of Results: <span class="wizard-num-results"></span>' +
+                                '</div>' +
+                            '</div>'+
+                        '</div>'+
+                    '</div>'+ 
+                    '<div class="col-sm-3 wizard-right"></div>' + 
+                '</div>' +
             '</div>' +
-        '<div>'
+            '<div class="wizard-chart-outer">' +
+                '<div class="wizard-chart"></div>' +
+            '</div>'+
+        '</div>'
     );
 
+    if( editMode ) panel.find('.wizard-chart-outer').hide();
+
     var cPanel = null;
+
+    var listeners = {};
 
     var schema = {
         basicInfo : {
@@ -63,7 +196,7 @@ WCGA.WizardPanel = function(editMode) {
             emptyLabel : 'No',
             helpText : 'Enter your zip code to find local opportunities.',
             inputs : [
-                {key: 'Zipcodes', type: 'text' },
+                {key: 'Zipcodes', type: 'text', noLabel : true },
                 {key: 'wizard-zipcode-buttons', type: 'div'} // placeholder
             ]
         },
@@ -72,6 +205,8 @@ WCGA.WizardPanel = function(editMode) {
             title : 'Eligible Applicants',
             label : 'For these eligible applicants',
             emptyLabel : 'All Applicant Types',
+            helpText : 'Eligible Applicant specifies who may apply of the opportunity. Individual grants may include '+
+                        'additional constraints on the applicants. An entity may belong to multiple eligibility types.',
             inputs : [],
         },
         category : {
@@ -79,6 +214,8 @@ WCGA.WizardPanel = function(editMode) {
             title : 'Categories',
             label : 'In these categories',
             emptyLabel : 'All Categories',
+            helpText : 'Identifies the basic functional category or subcategories that identify specific '+
+                        'areas of interest. These categories represent the general topic of the funding opportunity.',
             inputs : [
                 {key: 'wizard-expand-categories', type: 'div'}
             ], // these will be added in from the schema.json file
@@ -88,6 +225,7 @@ WCGA.WizardPanel = function(editMode) {
             title : 'Key Terms',
             label : 'With these key terms',
             emptyLabel : 'None',
+            helpText : 'Use this to search for grants using free text.',
             inputs : [
                 {key: 'keywords', type: 'text', noLabel : true}
             ]
@@ -188,7 +326,7 @@ WCGA.WizardPanel = function(editMode) {
             if( c == 0 ) {
                 schema[key].button.addClass('active');
                 cPanel = schema[key].panel;
-                panel.find('.wizard-main').append(cPanel);
+                panel.find('.wizard-panel-root').append(cPanel);
             }
             c++;
         }
@@ -202,14 +340,14 @@ WCGA.WizardPanel = function(editMode) {
         var btn = $(
             '<button class="btn btn-default wizard-btn" attribute="'+name+'">' +
                 '<div><b>'+index+'.</b> '+panelSchema.label+'</div>'+
-                '<div class="wizard-btn-value">' + 
+                '<div class="wizard-btn-value" attribute="'+name+'">' + 
                     panelSchema.emptyLabel + 
                 '</div>'+
             '</button>'
         ).on('click', _setMainPanel);
 
         var panel = $(
-            '<div class="wizard-panel animated bounceInDown" attribute="'+name+'">' +
+            '<div class="wizard-panel animated fadeInDown" attribute="'+name+'">' +
                 '<h3>'+panelSchema.title+'</h3>' +
                 '<div class="wizard-panel-inner"></div>' +
                 (panelSchema.helpText ? '<div class="wizard-panel-help">'+panelSchema.helpText+'</div>' : '') +
@@ -226,6 +364,9 @@ WCGA.WizardPanel = function(editMode) {
         var inputPanel = panel.find('.wizard-panel-inner');
 
         for( var i = 0; i < inputs.length; i++ ) {
+            if( editMode && inputs[i].searchOnly ) continue;
+            if( !editMode && inputs[i].editOnly ) continue;
+
             var ele = _initInput(name, inputs[i]);
             inputPanel.append(ele);
         }
@@ -235,7 +376,7 @@ WCGA.WizardPanel = function(editMode) {
         var root = $('<div></div>');
         var id = _getId(name, input.key);
 
-        var label = input.label || input.key
+        var label = input.noLabel ? '' : (input.label || input.key);
         var attrName = input.isAttribute ? input.key : name;
 
         if( input.type == 'checkbox' ) {
@@ -252,7 +393,7 @@ WCGA.WizardPanel = function(editMode) {
             var text = $(
                 '<div class="form-group">'+
                     '<label for="'+id+'">'+label+'</label>'+
-                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'">'+
+                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control" style="max-width: 200px">'+
                 '</div>'
             );
             text.find('input').on('change', _setAttribute);
@@ -264,6 +405,8 @@ WCGA.WizardPanel = function(editMode) {
         return root;
     }
 
+    // when a main panels input is updates, this updates the data object
+    // then fires update event with new data
     function _setAttribute(e) {
         var ele = $(this);
         var type = ele.attr('type');
@@ -277,14 +420,37 @@ WCGA.WizardPanel = function(editMode) {
                 else data[name] = [val];
             } else if( data[name] ) {
                 data[name].splice(data[name].indexOf(val),1);
+                if( data[name].length == 0 ) delete data[name];
             }
         } else if ( type == 'text' || type == 'number' ) {
             data[name] = ele.val();
         }
 
-        console.log(data);
+        if( !editMode ) _updateLabels();
+
+        fire('update', data);
     }
 
+    // update the labels (if we are not in edit mode)
+    function _updateLabels() {
+        var labels = $('.wizard-btn-value');
+        labels.each(function(){
+            var ele = $(this);
+            var attr = ele.attr('attribute');
+
+            if( data[attr] ) {
+                if( Array.isArray(data[attr]) ) {
+                    ele.text(data[attr].join(' | '));
+                } else {
+                    ele.text(data[attr]);
+                }
+            } else {
+                ele.text(schema[attr].emptyLabel);
+            }
+        });
+    }
+
+    // update the center visible panel
     function _setMainPanel(e) {
         if( cPanel ) cPanel.remove();
         
@@ -293,7 +459,7 @@ WCGA.WizardPanel = function(editMode) {
 
         var panelName = $(this).attr('attribute');
         cPanel = schema[panelName].panel;
-        panel.find('.wizard-main').append(cPanel);
+        panel.find('.wizard-panel-root').append(cPanel);
     }
 
     function _getId(attributeName, value) {
@@ -308,10 +474,23 @@ WCGA.WizardPanel = function(editMode) {
         return panel;
     }
 
+    function fire(event, data) {
+        if( !listeners[event] ) return;
+        for( var i = 0; i < listeners[event].length; i++ ) {
+            listeners[event][i](data);
+        }
+    }
+
+    function on(event, fn) {
+        if( listeners[event] ) listeners[event].push(fn);
+        else listeners[event] = [fn];
+    }
+
     return {
         init : init,
         reset : reset,
         getData : getData,
-        getPanel : getPanel
+        getPanel : getPanel,
+        on : on
     }
 };
