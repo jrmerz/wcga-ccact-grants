@@ -31,6 +31,11 @@
 	display: none;
 	padding: 2% 6%;
 }
+@media(max-width: 1200px) {
+	.page {
+		padding: 15px;
+	}
+}
 @media(max-width: 768px) {
 	.page {
 		padding: 4px;
@@ -125,10 +130,10 @@ html, body {
 	border-left: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
 	border-radius: 0 0 15px 15px;
-	height: 400px;
+	height: 450px;
 }
 .wizard-chart {
-	height: 380px;
+	height: 430px;
 }
 .wizard-search-root {
 	background-color: white;
@@ -143,6 +148,21 @@ html, body {
 	text-align:right; 
 	color: #888;
 	padding-top: 6px;
+}
+.wizard-reset-outer {
+	height: 25px;
+	text-align: right;
+}
+.wizard-reset {
+	margin-bottom: 0px !important;
+	margin-right: 30px !important;
+	border-bottom: none !important;
+	border-radius: 6px 6px 0 0 !important;
+	display: none;
+}
+.wizard-icon {
+	text-shadow: 3px 3px 2px #ddd;
+	display: inline-block;
 }
 /* wizard */
 

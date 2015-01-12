@@ -48,6 +48,8 @@ WCGA.app = (function() {
 	function _updatePageContent(hash) {
 		if ( cPage == 'print' ) {
 			WCGA.print.query(hash);
+		} else if ( cPage == 'wizard' ) {
+			WCGA.wizard.onShow();
 		}
 	}
 

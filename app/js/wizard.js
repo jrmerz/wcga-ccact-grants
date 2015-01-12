@@ -13,9 +13,17 @@ WCGA.wizard = (function() {
 
         $(window).on('resize', redraw);
 
-        setTimeout(function(){
-            updateChart({});
-        }.bind(200));
+        $('.wizard-reset').on('click', widget.reset);
+
+        //setTimeout(function(){
+        //    updateChart({});
+        //}.bind(200));
+    }
+
+    function onShow() {
+        chart = '';
+        $('.wizard-chart').html('');
+        updateChart({});
     }
 
     // todo: perhaps recreate chart completely on show
@@ -23,12 +31,16 @@ WCGA.wizard = (function() {
     function updateChart(data) {
         var query = formatQuery(data);
 
+        $('.wizard-num-results').html('<i class="fa fa-spinner fa-spin"></i>');
         $.get('/rest/filters?text='+encodeURIComponent(query.text) +
             '&filters='+encodeURIComponent(JSON.stringify(query.filters)),
             function(resp){
 
-                if( resp.total ) $('.wizard-num-results').text(resp.total);
-                else $('.wizard-num-results').text(0);
+                setTimeout(function(){
+                    if( resp.total ) $('.wizard-num-results').html(resp.total);
+                    else $('.wizard-num-results').html(0);
+                }, 500);
+ 
                 
                 var data = [['Category', 'Count']];
 
@@ -57,6 +69,12 @@ WCGA.wizard = (function() {
             '/' + encodeURIComponent(JSON.stringify(query.filters)) +
             '/0/6'
         );
+
+        if( Object.keys(data).length == 0 ) {
+            $('.wizard-reset').hide();
+        } else {
+            $('.wizard-reset').show();
+        }
     }
 
     function redraw() {
@@ -124,11 +142,10 @@ WCGA.wizard = (function() {
     }
 
     return {
-        init : init
+        init : init,
+        onShow : onShow
     }
 })();
-
-
 
 
 
@@ -141,6 +158,9 @@ WCGA.WizardPanel = function(editMode) {
 
     var panel = $(
         '<div>'+
+            '<div class="wizard-reset-outer">' +
+                '<a class="btn btn-default wizard-reset animated flipInX">Reset</a>' +
+            '</div>' +
             '<div class="wizard">' +
                 '<div class="row">' +
                     '<div class="col-sm-3 wizard-left"></div>' + 
@@ -343,6 +363,28 @@ WCGA.WizardPanel = function(editMode) {
 
     function reset() {
         data = {};
+           
+        // clear all inputs
+        for( var key in schema ) {
+            if( !schema[key].panel ) continue;
+
+            $(schema[key].panel).find('.wizard-input').each(function(){
+
+                var ele = $(this);
+
+                if( ele.attr('type') == 'checkbox' ) {
+                    ele.prop('checked', false);
+                } else {
+                    ele.val('');
+                }
+            });
+        }
+        
+
+        // update all labels
+        _updateLabels();
+
+        fire('update', data);
     }
 
     function _initPanel(name, panelSchema, index) {
@@ -392,7 +434,7 @@ WCGA.WizardPanel = function(editMode) {
             var cb = $(
                 '<div class="checkbox">' +
                     '<label>' +
-                        '<input id="'+id+'" type="checkbox" attribute="'+name+'" value="'+input.key+'" /> '+ label +
+                        '<input class="wizard-input" id="'+id+'" type="checkbox" attribute="'+name+'" value="'+input.key+'" /> '+ label +
                     '</label>' +
                 '</div>'
             );
@@ -402,7 +444,7 @@ WCGA.WizardPanel = function(editMode) {
             var text = $(
                 '<div class="form-group">'+
                     '<label for="'+id+'">'+label+'</label>'+
-                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control" style="max-width: 200px">'+
+                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control wizard-input" style="max-width: 200px">'+
                 '</div>'
             );
             text.find('input').on('change', _setAttribute);
@@ -461,7 +503,7 @@ WCGA.WizardPanel = function(editMode) {
 
     // update the center visible panel
     function _setMainPanel(e) {
-        if( cPanel ) cPanel.remove();
+        if( cPanel ) cPanel.detach();
         
         $('.wizard-btn').removeClass('active');
         $(this).addClass('active');
