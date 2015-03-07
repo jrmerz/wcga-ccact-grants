@@ -2,7 +2,6 @@
 
 var async = require('async');
 var request = require('request');
-var md5 = require('MD5');
 var ObjectID = require('mongodb').ObjectID;
 var MongoClient = require('mongodb').MongoClient, db, collection;
 var importLog, lastRun, config, count;

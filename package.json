@@ -6,7 +6,6 @@
   "dependencies": {
     "express": "*",
     "mongodb": "*",
-    "MD5": "*",
     "async": "*",
     "request": "^2.51.0",
     "grunt": "*",
