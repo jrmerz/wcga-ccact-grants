@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="js/print.js"></script>
 	<script type="text/javascript" src="js/saveSearch.js"></script>
 	<script type="text/javascript" src="js/wizard.js"></script>
+	<script type="text/javascript" src="js/add.js"></script>
 	<!-- endbuild -->
 
 	<script type="text/javascript" src="http://s7.addthis.com/js/200/addthis_widget.js"></script>
@@ -44,7 +45,7 @@
 </head>
 <body>
 
-<div id="home" class="page">
+<div id="home" class="page" style="margin:0;padding:0">
 
 	<div class="jumbotron" style="text-align:center;background-color:white">
 		<div style="display:inline-block; text-align:left">
@@ -62,7 +63,7 @@
 	  <p style="margin-top: 75px">
 	  	<a href="#wizard" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-magic"></i>  Wizard</a>
 	  	<a href="#search" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-search"></i>  Search</a>
-	  	<a href="#Add" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-plus"></i>  Add</a>
+	  	<a href="#add" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-plus"></i>  Add</a>
 	  </p>
 	</div>
 </div>
@@ -251,6 +252,24 @@ one or more zip code.</div>
 	</div>
 
 	<div id="wizard-root"></div>
+</div>
+
+<div id="add" class="page">
+	<div class="row">
+		<div class="col-sm-8">
+			<h2 class="dark-blue">Suggest a funding opportunity</h2>
+		</div>
+		<div class="col-sm-4" style="text-align: right; padding-top: 20px">
+			<a class="btn btn-primary" href="#home"><i class="fa fa-home"></i> Home</a>
+			<a class="btn btn-primary" href="#search"><i class="fa fa-search"></i> Search</a>
+		</div>
+	</div>
+
+	<div class="light-blue" style="padding: 15px">
+		Suggest a grant to the <span class="dark-blue">Funding Catalog Wizard</span>.
+	</div>
+
+	<div id="add-root"></div>
 </div>
 
 <div id="print" class="page">

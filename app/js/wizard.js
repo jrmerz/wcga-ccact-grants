@@ -193,20 +193,22 @@ WCGA.WizardPanel = function(editMode) {
     var listeners = {};
 
     var schema = {
-        basicInfo : {
+        title : {
             position : 'left',
             title : 'Basic Information',
             label : 'Basic Information',
+            helpText : 'Basic information about the grant.',
             editOnly : true,
             inputs : [
-                {key: 'title', type: 'text'},
-                {key: 'link', type: 'text', label: 'Url'},
-                {key: 'description', type: 'textarea'},
+                {key: 'title', type: 'text', label:'Title', multi: true},
+                {key: 'link', type: 'text', label: 'URL', multi: true},
+                {key: 'description', type: 'textarea', label:'Description', multi: true},
             ]
         },
         assistanceType : {
             position : 'left',
             title : 'Assistance Type',
+            editLabel : 'Assitance Type',
             label : 'What are you looking for: ',
             emptyLabel : 'All Assistance Types',
             helpText : 'Select a specific type of assistance you are looking for.',
@@ -221,6 +223,7 @@ WCGA.WizardPanel = function(editMode) {
         zipCodes : {
             position : 'left',
             title : 'Find Local Rebates',
+            editLabel : 'Zip Codes',
             label : 'Include local opportunities, like rebates, in search:',
             emptyLabel : 'No',
             helpText : 'Enter your zip code to find local opportunities.',
@@ -233,15 +236,17 @@ WCGA.WizardPanel = function(editMode) {
             position : 'left',
             title : 'Eligible Applicants',
             label : 'For these eligible applicants',
+            editLabel : 'Eligible Applicants',
             emptyLabel : 'All Applicant Types',
             helpText : 'Eligible Applicant specifies who may apply of the opportunity. Individual grants may include '+
                         'additional constraints on the applicants. An entity may belong to multiple eligibility types.',
             inputs : [],
         },
         category : {
-            position : 'right',
+            position : 'left',
             title : 'Categories',
             label : 'In these categories',
+            editLabel : 'Categories',
             emptyLabel : 'All Categories',
             helpText : 'Identifies the basic functional category or subcategories that identify specific '+
                         'areas of interest. These categories represent the general topic of the funding opportunity.',
@@ -254,15 +259,29 @@ WCGA.WizardPanel = function(editMode) {
             title : 'Key Terms',
             label : 'With these key terms',
             emptyLabel : 'None',
+            searchOnly : true,
             helpText : 'Use this to search for grants using free text.',
             inputs : [
                 {key: 'keywords', type: 'text', noLabel : true}
+            ]
+        },
+        fundingSource : {
+            position : 'right',
+            title : 'Funding Source',
+            editOnly : true,
+            editLabel : 'Funding Source',
+            inputs : [
+                {key: 'Federal', type: 'checkbox'},
+                {key: 'State', type: 'checkbox'},
+                {key: 'Local', type: 'checkbox'},
+                {key: 'Other', type: 'checkbox'}
             ]
         },
         awardAmountText : {
             position : 'right',
             title : 'Funding Range',
             label : 'With funding in the range of:',
+            editLabel : 'Funding Range',
             emptyLabel : 'Any Funding Level',
             helpText : 'This specifies the range of funding for a typical accepted application for the opportunity.',
             inputs : [
@@ -283,6 +302,7 @@ WCGA.WizardPanel = function(editMode) {
             title : 'Application Deadline',
             label : 'Where the application deadline is:',
             emptyLabel : 'Any Deadline',
+            editLabel : 'Deadline',
             helpText : 'This specifies the range of funding for a typical accepted application for the opportunity.',
             inputs : [
                 {key: 'due in less than 1 month', type: 'checkbox', searchOnly : true},
@@ -333,6 +353,7 @@ WCGA.WizardPanel = function(editMode) {
         var index = 1;
         for( var key in schema ) {
             if( schema[key].editOnly && !editMode ) continue;
+            if( schema[key].searchOnly && editMode ) continue;
 
             _initPanel(key, schema[key], index);
             index++;
@@ -390,18 +411,18 @@ WCGA.WizardPanel = function(editMode) {
     function _initPanel(name, panelSchema, index) {
         var btn = $(
             '<button class="btn btn-default wizard-btn" attribute="'+name+'">' +
-                '<div><b>'+index+'.</b> '+panelSchema.label+'</div>'+
+                '<div><b>'+index+'.</b> '+((editMode && panelSchema.editLabel) ? panelSchema.editLabel : panelSchema.label )+'</div>'+
                 '<div class="wizard-btn-value" attribute="'+name+'">' + 
-                    panelSchema.emptyLabel + 
+                    (editMode ? '[Not Set]' : panelSchema.emptyLabel) + 
                 '</div>'+
             '</button>'
         ).on('click', _setMainPanel);
 
         var panel = $(
             '<div class="wizard-panel animated fadeInDown" attribute="'+name+'">' +
-                '<h3>'+panelSchema.title+'</h3>' +
+                '<h3>'+((editMode && panelSchema.editLabel) ? panelSchema.editLabel : panelSchema.title)+'</h3>' +
                 '<div class="wizard-panel-inner"></div>' +
-                (panelSchema.helpText ? '<div class="wizard-panel-help">'+panelSchema.helpText+'</div>' : '') +
+                ((!editMode && panelSchema.helpText) ? '<div class="wizard-panel-help">'+panelSchema.helpText+'</div>' : '') +
             '</div>'
         );
 
@@ -434,7 +455,8 @@ WCGA.WizardPanel = function(editMode) {
             var cb = $(
                 '<div class="checkbox">' +
                     '<label>' +
-                        '<input class="wizard-input" id="'+id+'" type="checkbox" attribute="'+name+'" value="'+input.key+'" /> '+ label +
+                        '<input class="wizard-input" id="'+id+'" type="checkbox" attribute="'+name+'" '+(input.multi ? 'multi="'+
+                            input.key+'"' : '')+' value="'+input.key+'" /> '+ label +
                     '</label>' +
                 '</div>'
             );
@@ -444,13 +466,21 @@ WCGA.WizardPanel = function(editMode) {
             var text = $(
                 '<div class="form-group">'+
                     '<label for="'+id+'">'+label+'</label>'+
-                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control wizard-input" style="max-width: 200px">'+
+                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control wizard-input" '
+                        +(input.multi ? 'multi="'+input.key+'"' : '')+' style="max-width: 200px">'+
                 '</div>'
             );
             text.find('input').on('change', _setAttribute);
             root.append(text);
         } else if( input.type == 'div' ){
             root.append($('<div id="'+id+'" attribute="'+name+'" value="'+input.key+'"></div>'))
+        
+        } else if( input.type == 'textarea' ){
+
+            var text = $('<div><label>'+label+'</label><br /><textarea class="form-control" id="'+id+'" attribute="'
+                +(input.multi ? 'multi="'+input.key+'"' : '')+' '+name+'" value="'+input.key+'"></textarea></div>');
+            text.find('textarea').on('change', _setAttribute);
+            root.append(text);
         }
 
         return root;
@@ -462,6 +492,9 @@ WCGA.WizardPanel = function(editMode) {
         var ele = $(this);
         var type = ele.attr('type');
         var name = ele.attr('attribute');
+        var multi = ele.attr('multi');
+
+        if( multi ) name = multi;
 
         if( type == 'checkbox' ) {
             var val = ele.attr('value');
@@ -478,13 +511,14 @@ WCGA.WizardPanel = function(editMode) {
         }
 
         if( !editMode ) _updateLabels();
+        else _updateEditLabels();
 
         fire('update', data);
     }
 
-    // update the labels (if we are not in edit mode)
     function _updateLabels() {
         var labels = $('.wizard-btn-value');
+
         labels.each(function(){
             var ele = $(this);
             var attr = ele.attr('attribute');
@@ -496,9 +530,30 @@ WCGA.WizardPanel = function(editMode) {
                     ele.text(data[attr]);
                 }
             } else {
-                ele.text(schema[attr].emptyLabel);
+                ele.text(schema[attr].emptyLabel || '');
             }
         });
+    }
+
+    // update the labels (if we are not in edit mode)
+    function _updateEditLabels() {
+        var labels = $('.wizard-btn-value');
+
+        labels.each(function(){
+            var ele = $(this);
+            var attr = ele.attr('attribute');
+
+            if( data[attr] ) {
+                if( Array.isArray(data[attr]) ) {
+                    ele.text(data[attr].join(', '));
+                } else {
+                    ele.text(data[attr]);
+                }
+            } else {
+                ele.text('[Not Set]');
+            }
+        });
+        console.log(data);
     }
 
     // update the center visible panel

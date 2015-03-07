@@ -1,46 +1,48 @@
 /**
- * This will actually extend the MQE expressjs server
- * 
- * make sure mongo is fired up w/ text search enabled
- * mongod --setParameter textSearchEnabled=true
- * 
+ * Boostraped by the MQE, ExpressJS server
  */
-var config = require(process.argv[2]);
+
 var ical = require('ical-generator');
 var fs = require('fs');
 
+// global ns provided by mqe
+var app = global.app;
+var mqe = global.mqe;
+var config = global.appConfig;
+var express = global.express;
+var logger = global.logger;
+
 // express app
 exports.bootstrap = function(server) {
-    var db = server.mqe.getDatabase();
-
-
-    server.app.get('/rest/schema', function(req, resp) {
+    app.get('/rest/schema', function(req, resp) {
         resp.setHeader("content-type", "application/json");
         fs.createReadStream(__dirname+"/lib/schema.json").pipe(resp);
     });
 
-    server.app.get('/rest/filters', function(req, resp) {
-        var query = server.mqe.queryParser(req);
-        var options = server.mqe.getOptionsFromQuery(query);
-        server.mqe.filterCounts(options, function(err, result){
+    app.get('/rest/filters', function(req, resp) {
+        var query = mqe.queryParser(req);
+        var options = mqe.getOptionsFromQuery(query);
+
+        mqe.filterCounts(options, function(err, result){
             if( err ) return resp.send({error: true, message: err});
 
             var filters = {
                 filters : result
             }
 
-            server.mqe.filterCountsQuery(query, function(err, result){
+            mqe.filterCountsQuery(query, function(err, result){
                 if( err ) return resp.send({error: true, message: err});
                 filters.total = result;
+
                 resp.send(filters);
             });
         });
     });
 
-    server.app.get('/rest/counts', function(req, resp){
-        var query = server.mqe.queryParser(req);
+    app.get('/rest/counts', function(req, resp){
+        var query = mqe.queryParser(req);
 
-        server.mqe.filterCountsQuery(query, function(err, result){
+        mqe.filterCountsQuery(query, function(err, result){
             if( err ) return resp.send({error: true, message: err});
 
             var counts = {
@@ -54,7 +56,7 @@ exports.bootstrap = function(server) {
                 postDate : { $gte: lastMonth }
             });
 
-            server.mqe.filterCountsQuery(query, function(err, result){
+            mqe.filterCountsQuery(query, function(err, result){
                 if( err ) return resp.send({error: true, message: err});
 
                 counts['new'] = result;
@@ -63,7 +65,7 @@ exports.bootstrap = function(server) {
         });
     });
 
-    server.app.get('/rest/ical', function(req, resp){
+    app.get('/rest/ical', function(req, resp){
         cal = ical();
         cal.setDomain('westcoastoceans.org').setName(req.query.title);
 
@@ -80,13 +82,12 @@ exports.bootstrap = function(server) {
     });
 
     if( config.dev ) {
-        server.app.use("/", server.express.static(__dirname+"/app"));
-        console.log('using: '+__dirname+"/app");
+        app.use("/", express.static(__dirname+"/app"));
+        logger.info('serving: '+__dirname+"/app");
     } else {
-        server.app.use("/", server.express.static(__dirname+"/dist"));
-        console.log('using: '+__dirname+"/dist");
+        server.app.use("/", express.static(__dirname+"/dist"));
+        logger.info('serving: '+__dirname+"/dist");
     }
-    
 };
 
 

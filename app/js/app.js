@@ -5,7 +5,7 @@ var WCGA = {
 WCGA.app = (function() {
 	
 	var DEFAULT_PAGE = 'home';
-	var validPages = [DEFAULT_PAGE, 'search', 'result', 'suggest', 'wizard', 'print'];
+	var validPages = [DEFAULT_PAGE, 'search', 'result', 'suggest', 'wizard', 'print', 'add'];
 	
 	var cPage = '';
 
@@ -29,6 +29,7 @@ WCGA.app = (function() {
 
 		onSchemaLoad(function(){
 			WCGA.wizard.init();
+			WCGA.add.init();
 		});
 	});
 	
@@ -50,6 +51,8 @@ WCGA.app = (function() {
 			WCGA.print.query(hash);
 		} else if ( cPage == 'wizard' ) {
 			WCGA.wizard.onShow();
+		} else if ( cPage == 'add' ) {
+			WCGA.add.onShow();
 		}
 	}
 

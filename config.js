@@ -27,7 +27,9 @@ exports.db = {
     // combine all filters listed below into a single attribute that will be used for
     // the text search index
     textIndexes       : ['title','description','organization','office','category',
-    					'fundingSource','eligibleApplicants','assistanceType','obtainFundingOppText']
+    					'fundingSource','eligibleApplicants','assistanceType','obtainFundingOppText'],
+
+    blacklist : ['_id', 'md5']
 }
 
 
