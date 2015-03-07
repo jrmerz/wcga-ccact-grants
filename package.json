@@ -27,7 +27,8 @@
     "grunt-contrib-cssmin": "*",
     "grunt-svgmin": "*",
     "xml2js": "^0.4.4",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "ical-generator": "^0.2.0"
   },
   "devDependencies": {
     "grunt-filerev": "*"
