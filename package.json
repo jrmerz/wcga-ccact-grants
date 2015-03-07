@@ -28,7 +28,8 @@
     "xml2js": "^0.4.4",
     "unzip": "^0.1.11",
     "ical-generator": "^0.2.0",
-    "md5": "^1.0.0"
+    "md5": "^1.0.0",
+    "MD5": "^1.2.1"
   },
   "devDependencies": {
     "grunt-filerev": "*"

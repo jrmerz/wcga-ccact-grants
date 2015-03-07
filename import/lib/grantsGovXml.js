@@ -4,7 +4,7 @@ var fs = require('fs');
 var unzip = require('unzip');
 var request = require('request');
 var async = require('async');
-var md5 = require('md5');
+var md5 = require('MD5');
 var parseString = require('xml2js').parseString;
 
 var config = require('./grantsGovConf').config;
