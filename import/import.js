@@ -11,6 +11,8 @@ var grantsGov = require('./lib/grantsGovXml');
 var verbose = false;
 
 
+config = require(process.argv[2]);
+
 function log(msg) {
     if( verbose ) console.log(' --import: '+msg);
 }
@@ -30,7 +32,7 @@ function run() {
 }
 
 function connect() {	
-	MongoClient.connect('mongodb://localhost:27017/wcga', function(err, database) {
+	MongoClient.connect(config.db.url, function(err, database) {
 		if(!err) {
 			db = database;
 			console.log('connected to mongo db');
@@ -40,7 +42,7 @@ function connect() {
 			return;
 		}
 
-		db.collection('grants', function(err, c) { 
+		db.collection(config.db.mainCollection, function(err, c) { 
 			if( err ) {
 				console.log('unable to connect to collection: '+config.db.mainCollection);
 				console.log(err);
@@ -49,7 +51,9 @@ function connect() {
 			collection = c;
 
 			grantsGov.run(c, function(){
+				grantsGov.cleanUpZips();
 				console.log('done');
+				process.exit(1);
 			});
 			
 		});

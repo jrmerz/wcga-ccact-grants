@@ -403,3 +403,36 @@ function dateStrToDate(date) {
     );
 }
 
+// clean up data dir, keep at most 4 snapshots
+function cleanUpZips() {
+    var files = fs.readdirSync(dir);
+    if( files.length < 5 ) return; 
+
+    var zips = [];
+    for( var i = 0; i < files.length; i++ ) {
+        if( files[i].match(/GrantsDBExtract.*zip/) ) {
+            var t = files[i].replace(/\D/g,'');
+            zips.push({
+                name : files[i],
+                date : new Date(
+                    parseInt(t.substring(0,4)),
+                    parseInt(t.substring(4,6)-1),
+                    parseInt(t.substring(6,8))
+                ).getTime()
+            });
+        }
+    }
+
+    zips.sort(function(a, b){
+        if( a.date > b.date ) return -1;
+        if( a.date < b.date ) return 1;
+        return 0;
+    });
+
+    for( var i = 4; i < zips.length; i++ ) {
+        fs.unlinkSync(dir+zips[i].name);
+    }
+}
+exports.cleanUpZips = cleanUpZips;
+
+
