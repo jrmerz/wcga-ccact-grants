@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  	<meta name="theme-color" content="#0b5b9a"> 
+	
+	<title>WGCA Funding Catalog</title>
+
+	<script src="scripts/56993667.build.js"></script>
+
+	<script type="text/javascript" src="http://s7.addthis.com/js/200/addthis_widget.js"></script>
+
+	<link rel="stylesheet" href="css/ec7d1495.build.css">
+
+
+	<script type="text/javascript" src="mqe/mqe.js"></script>
+
+
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+      //google.setOnLoadCallback(initchart);
+    </script>
+	
+</head>
+<body>
+
+<div id="home" class="page" style="margin:0;padding:0">
+
+	<div class="jumbotron" style="text-align:center;background-color:white">
+		<div style="display:inline-block; text-align:left">
+			<h1 style="margin:0 3px;">
+				<span class="dark-blue">WEST COAST GOVERNORS</span><br />
+				<span class="light-blue">ALLIANCE</span> <small class="dark-blue">on</small>
+				<span class="light-blue">OCEAN HEALTH</span>
+			</h1>
+			<h5 style="margin:0;text-align:right" class="dark-blue">CALIFORNIA OREGON WASHINGTON</h5>
+		</div>
+	</div>
+	<div class="jumbotron" style="text-align:center; ">
+	  <h2 style="margin-top:0;text-shadow: 2px 2px 0px white; ">Climate Change Action Coordination Team</h2>
+	  <p>Funding Catalog</p>
+	  <p style="margin-top: 75px">
+	  	<a href="#wizard" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-magic"></i>  Wizard</a>
+	  	<a href="#search" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-search"></i>  Search</a>
+	  	<a href="#add" class="btn btn-primary btn-lg" style="margin-bottom: 10px" role="button"><i class="fa fa-plus"></i>  Add</a>
+	  </p>
+	</div>
+</div>
+
+<div id="search" class="page">
+	<div class="page-header" style="margin:0px;border:none">
+		<div class="row">
+			<div class="col-md-9">
+				<h2 class="dark-blue">Funding Catalog</h2>
+			</div>
+			<div class="col-md-3">
+				<a class='btn btn-primary pull-right' href="#home" style="margin:5px">
+					<i class="fa fa-home"></i> Home
+				</a>
+				<a class='btn btn-primary pull-right' href="#wizard" style="margin:5px">
+					<i class="fa fa-magic"></i> Wizard
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<div style="text-align:right">
+		<a id="print-btn" class="btn btn-link"><i class="fa fa-print"></i> Print Report</a>
+		<a id="remove-save-search-btn" class="btn btn-link"><i class="fa fa-trash"></i> Remove Saved Search</a>
+		<a id="save-search-btn" class="btn btn-link"><i class="fa fa-save"></i> Save Search</a>
+	</div>
+
+	<div class="well form-search">
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="input-group" style="max-width: 450px">
+					<input id="search-text" type="text" class="form-control"  >
+				  	<span class="input-group-btn">
+			        	<button id="search-btn" class="btn btn-default" type="button"><i class="fa fa-search"></i> Search</button>
+			      	</span>
+				</div>
+			</div>
+			<div class="col-sm-4" style="text-align:right">
+				<a class="btn btn-link" data-toggle="collapse" href="#collapseFilters" aria-expanded="false" aria-controls="collapseFilters">
+		  			Your Selections <i class="fa fa-arrow-circle-o-down"></i>
+				</a>
+			</div>
+		</div>
+		
+		<div class="collapse in" id="collapseFilters" style="margin-top: 15px">
+			<div class="filters-box">
+				<div class="row">
+					<div class="col-md-4" >
+						<div class="checkbox">
+						    <label>
+						      <input type="checkbox" id="filters-new"> Only Show What's <span class="new"><i class="fa fa-star-o"></i> New</span>
+						    </label>
+						</div>
+						<div>
+							<b>Assitance Type:</b>
+							<div id="filters-assistanceType"></div>
+						</div>
+						<div>
+							<b>Eligible Applicants:</b>
+							<div id="filters-eligibleApplicants"></div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div>
+							<b>Funding Range:</b>
+							<div id="filters-awardAmountText"></div>
+						</div>
+						<div>
+							<b>Deadline:</b>
+							<div id="filters-deadlineText"></div>
+						</div>
+						<div>
+							<b>Categories:</b>
+							<div id="filters-category"></div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div>
+							<b>Find Local Rebates:</b>
+							<div id="filters-zipCodes"></div>
+						</div>
+						<div>
+							<b>Additional Filters:</b>
+							<div id="filters-other"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+	<div class="row">
+		<div class="col-md-3">
+			<div class="well" style="overflow:hidden">
+				<ul class="nav nav-list" id="filter-nav"></ul>
+			</div>
+			<div class="well">
+				<h4 class="page-header" style="margin:0">Include Local Rebates</h4>
+				<h6>Search by Zip Code</h6>
+				<input type="text" class="form-control" id="input-search-zipcode" />
+				<div id="input-search-zipcode-help" style="color:#888;font-size: 12px; padding: 5px; background-color: white; display: none">Use commas to search by 
+one or more zip code.</div>
+				<div style="margin: 15px 0 5px 0">
+					<a class="btn btn-default" id="search-add-zipcode">Update</a>
+					<a class="btn btn-default" id="search-clear-zipcode">No Thanks</a>
+				</div>
+				
+				<div style="color:#888;font-size: 12px">Use of zip codes help find relevant rebates in your area.</div>
+			</div>
+
+			<div id="current-saved-search" class="well" style="display:none">
+				<h4 class="page-header" style="margin:0">Load Saved Search</h4>
+				<div id="current-saved-search-list"></div>
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="page-header" style="margin:10px 0 0 0">
+				<div class="row">
+					<div class="col-md-6">
+						<h4 class="results-title">Search Results</h4>
+					</div>
+					<div class="col-md-6">
+						<ul class="search-paging-btns pagination pull-right" style="margin:0px"></ul>
+					</div>
+				</div>
+			</div>
+			<div id="results-panel"></div>
+			<div class="row" style="margin-top: 20px">
+				<div class="col-md-6">
+					<h4 class="results-title">Search Results</h4>
+				</div>
+				<div class="col-md-6">
+					<ul class="search-paging-btns pagination pull-right" style="margin:0px"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
+		<div>
+			<a class="btn btn-link" href="http://www.westcoastoceans.org/">WCGA Home</a>
+		</div>
+	</div>
+</div>
+
+<div id="current-saved-search-list-preview"></div>
+
+<div class="modal fade" id="saveSearchPopup" tabindex="-1" role="dialog" aria-labelledby="saveSearchLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="saveSearchLabel">Save Search</h4>
+      </div>
+      <div class="modal-body">
+      	<label for="save-search-name">Name:</label>
+      	<input id="save-search-name" type="text" class="form-control"  />
+      	<p class="help-block">Provide a name to remember this search by.</p>
+      	<div id="save-search-content"></div>
+      	<input style="display:none" type="text" id="save-search-value" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="save-search-confirm" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="wizard" class="page">
+
+
+	<div class="row">
+		<div class="col-sm-8">
+			<h2 class="dark-blue">Funding Catalog Wizard <span class="wizard-icon animated bounceInLeft"><i class="fa fa-magic"></i></span> </h2>
+		</div>
+		<div class="col-sm-4" style="text-align: right; padding-top: 20px">
+			<a class="btn btn-primary" href="#home"><i class="fa fa-home"></i> Home</a>
+			<a class="btn btn-primary" href="#search"><i class="fa fa-search"></i> Search</a>
+		</div>
+	</div>
+
+	<div class="light-blue" style="padding: 15px">
+		Use the <span class="dark-blue">Funding Catalog Wizard</span> to help find money for your sustainable projects! Start here to narrow your search by selecting options in the areas below. Watch how your selections change the number of results. When ready, click the View Search Results button and your list will appear on the next page.
+	</div>
+
+	<div id="wizard-root"></div>
+</div>
+
+<div id="add" class="page">
+	<div class="row">
+		<div class="col-sm-8">
+			<h2 class="dark-blue">Suggest a funding opportunity</h2>
+		</div>
+		<div class="col-sm-4" style="text-align: right; padding-top: 20px">
+			<a class="btn btn-primary" href="#home"><i class="fa fa-home"></i> Home</a>
+			<a class="btn btn-primary" href="#search"><i class="fa fa-search"></i> Search</a>
+		</div>
+	</div>
+
+	<div class="light-blue" style="padding: 15px">
+		Suggest a grant to the <span class="dark-blue">Funding Catalog Wizard</span>.
+	</div>
+
+	<div id="add-root"></div>
+</div>
+
+<div id="print" class="page">
+	<div id="print-results"></div>
+</div>
+
+<div id="result" class="page"></div>
+
+<div id="badness" class="page">
+	<h4>WGCA Funding Catalog</h4>
+
+	<div class="jumbotron" style="text-align:center">
+		<h1 style="text-align:center; color: red; text-shadow: 2px 2px 0 white" class="animated tada">
+			<i class="fa fa-exclamation-triangle"></i> Oooh No :(
+		</h1>
+
+		<h3 style="text-align:center; color: #888" class="animated fadeInUpBig">It appears the funding opportunity you were looking for now longer exists!</h3>
+
+	</div>
+
+	<div style="margin:top:25px; text-align:center">
+		<a href="#search"><i class="fa fa-search"></i> Search for Opportunities</a>
+	</div>
+</div>
+
+
+<div id="loading" style="display:none;position:fixed;top:50px;text-align:center;width:100%;" class="animated flipInX">
+	<div class="alert alert-info" style="display:inline-block;box-shadow: 0 0 5px white">Loading...</div>
+</div>
+
+</body>
+</html>

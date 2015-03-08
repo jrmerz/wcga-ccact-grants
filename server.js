@@ -81,13 +81,8 @@ exports.bootstrap = function(server) {
         cal.serve(resp);
     });
 
-    if( config.dev ) {
-        app.use("/", express.static(__dirname+"/app"));
-        logger.info('serving: '+__dirname+"/app");
-    } else {
-        server.app.use("/", express.static(__dirname+"/dist"));
-        logger.info('serving: '+__dirname+"/dist");
-    }
+    app.use('/', express.static(__dirname + (config.dev ? '/app' : '/dist')));
+    logger.info('serving: '+__dirname+ (config.dev ? '/app' : '/dist'));
 };
 
 

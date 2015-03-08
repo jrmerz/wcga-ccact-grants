@@ -1,4 +1,4 @@
+.tmp
 node_modules
 bower_components
-dist
 import/lib/data

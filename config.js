@@ -3,7 +3,7 @@ exports.debug = true;
 
 exports.node = 'node';
 
-exports.dev = true;
+exports.dev = false;
 
 exports.db = {
 	// start command for mongo
