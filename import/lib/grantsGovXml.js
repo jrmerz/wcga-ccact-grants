@@ -9,6 +9,7 @@ var parseString = require('xml2js').parseString;
 
 var config = require('./grantsGovConf').config;
 var vocab = require('./controlledVocab');
+var schema = require('../../lib/schema.json');
 
 var url = 'http://www.grants.gov/web/grants/xml-extract.html' +
           '?p_p_id=&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view'+
@@ -55,6 +56,21 @@ var etlConfig = {
     numberic : ['maxAmount', 'minAmount', 'numberOfAward', 'estimatedFunding']
 }
 
+// create a lookup object for the attribute 'bubbling'
+var eligibleApplicantsBubble = {};
+for( var key in schema.eligibleApplicants ) {
+    for( var i = 0; i < schema.eligibleApplicants[key].length; i++ ) {
+        eligibleApplicantsBubble[schema.eligibleApplicants[key][i]] = key;
+    }
+}
+
+var categoryBubble = {};
+for( var key in schema.category ) {
+    for( var i = 0; i < schema.category[key].length; i++ ) {
+        categoryBubble[schema.category[key][i]] = key;
+    }
+}
+
 
 exports.run = function(collection, callback) {
     var date = new Date();
@@ -73,9 +89,11 @@ exports.run = function(collection, callback) {
         console.log(url+date+'.zip');
         request(url+date+'.zip')
             .on('end', function(){
+                console.log('processing...');
+                fs.renameSync(dir+rootFileName+date+'.zip.tmp', dir+rootFileName+date+'.zip')
                 readCache(date, process, collection, callback);
             })
-            .pipe(fs.createWriteStream(dir+rootFileName+date+'.zip'));
+            .pipe(fs.createWriteStream(dir+rootFileName+date+'.zip.tmp'));
     }
 }
 
@@ -219,6 +237,7 @@ function createItemFromOpp(obj) {
     if( hasAttribute(obj, 'FundingActivityCategory') ) {
         item.category = [];
         item.fundingActivityCategory = [];
+
         for( var i = 0; i < obj.FundingActivityCategory.length; i++ ) {
             var id = obj.FundingActivityCategory[i];
             var cat = config.categories[id];
@@ -229,6 +248,11 @@ function createItemFromOpp(obj) {
             var name = cat.wgca.length > 0 ? cat.wgca : cat.grantsGov;
             if( item.category.indexOf(name) == -1 ) {
                 item.category.push(name);
+
+                // now check if bubble should be added
+                if( categoryBubble[name] && item.category.indexOf(categoryBubble[name]) == -1 ) {
+                    item.category.push(categoryBubble[name]);
+                }
             }
         }
         
@@ -258,7 +282,6 @@ function createItemFromOpp(obj) {
     }
 
     // set the eligibleApplicants
-    // TODO: eligibleApplicants should 'bubble' and add parent categories if they exist
     if( hasAttribute(obj, 'EligibilityCategory') ) {
         item.eligibilityCategory = [];
         item.eligibleApplicants = [];
@@ -272,6 +295,12 @@ function createItemFromOpp(obj) {
             
             if( item.eligibleApplicants.indexOf(app.wgca) == -1 ) {
                 item.eligibleApplicants.push(app.wgca);
+
+                // now check if bubble should be added
+                if( eligibleApplicantsBubble[app.wgca] && 
+                    item.eligibleApplicants.indexOf(eligibleApplicantsBubble[app.wgca]) == -1 ) {
+                    item.eligibleApplicants.push(eligibleApplicantsBubble[app.wgca]);
+                }
             }
         }
 

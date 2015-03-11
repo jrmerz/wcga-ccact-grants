@@ -20,12 +20,12 @@ var organizationBlacklist =
     ['Agency for International Development','Department of Veterans Affairs','Department of Health and Human Services'];
 
 var titleWordBlacklist = 
-    ['DO NOT','TEST','FY09','FY2009','FY 2010','FY 2009','OR-WA','Atlantic','Great Lakes','Gulf Oil Spill','Food Safety','Elderly',
+    ['DO NOT','TEST','FY09','FY2009','FY 2010','FY 2009','Atlantic','Great Lakes','Gulf Oil Spill','Food Safety','Elderly',
     'Alabama','Alaska','Arizona','Arkansas','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana',
     'Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana',
-    'Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon',
-    'Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington',
-    'West Virginia','Wisconsin','Wyoming', 'OR/WA', 'WY'];
+    'Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma',
+    'Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia',
+    'West Virginia','Wisconsin','Wyoming', 'WY'];
 
 var category = 
     [['cat','description','category'],
