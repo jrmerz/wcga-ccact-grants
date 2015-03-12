@@ -64,14 +64,6 @@ for( var key in schema.eligibleApplicants ) {
     }
 }
 
-var categoryBubble = {};
-for( var key in schema.category ) {
-    for( var i = 0; i < schema.category[key].length; i++ ) {
-        categoryBubble[schema.category[key][i]] = key;
-    }
-}
-
-
 exports.run = function(collection, callback) {
     var date = new Date();
     var m = date.getMonth()+1;
@@ -190,8 +182,26 @@ function upsert(item, collection, next) {
 }
 
 function removeBlackListItems(opps) {
+    var blacklist = [];
+
     for( var i = opps.length-1; i >= 0; i-- ) {
+
+        var validCats = false;
+        for( var j = 0; j < opps[i].fundingActivityCategory.length; j++ ) {
+            if( config.fundingCatWhitelist.indexOf(opps[i].fundingActivityCategory[j]) != -1 ) {
+                validCats = true;
+                break;
+            }
+        }
+        if( !validCats ) {
+            blacklist.push(opps[i].title);
+            opps.splice(i, 1);
+            continue;
+        }
+
+
         if( opps[i].office && config.blacklist.organizations.indexOf(opps[i].office) != -1 ) {
+            blacklist.push(opps[i].title);
             opps.splice(i, 1);
             continue;
         }
@@ -199,11 +209,14 @@ function removeBlackListItems(opps) {
 
         for( var j = 0; j < config.blacklist.titleWords.length; j++ ) {
             if( opps[i].title.indexOf(config.blacklist.titleWords[j]) != -1 ) {
+                blacklist.push(opps[i].title);
                 opps.splice(i, 1);
                 break;
             }
         }
     }
+
+    console.log(blacklist);
 }
 
 function createItemFromOpp(obj) {
@@ -242,17 +255,13 @@ function createItemFromOpp(obj) {
             var id = obj.FundingActivityCategory[i];
             var cat = config.categories[id];
 
+
             item.fundingActivityCategory.push(id);
             if( !cat ) continue;
 
             var name = cat.wgca.length > 0 ? cat.wgca : cat.grantsGov;
             if( item.category.indexOf(name) == -1 ) {
                 item.category.push(name);
-
-                // now check if bubble should be added
-                if( categoryBubble[name] && item.category.indexOf(categoryBubble[name]) == -1 ) {
-                    item.category.push(categoryBubble[name]);
-                }
             }
         }
         

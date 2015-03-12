@@ -16,6 +16,12 @@ var eligibleApplicants =
     ['Special Group','25','Others (see text field entitled Additional Information on Eligibility for clarification)'],
     ['Other','99','"Unrestricted (i.e.',' open to any type of entity above)',' subject to any clarification in text field entitled Additional Information on Eligibility"']];
 
+var fundingCatWhitelist = ['AG','AK','AL','AP','AQ','A#','BC','BK','BL','BR','B#',
+'CD','CGA','CGB','CK','CL','CM','CN','CS','C#','EN','ENV','GB','GC','GD','GE','G#',
+'IK','IL','IM','IN','IO','IP','I#','JK','JL','JM','JN','JO','JP','J#',
+'MM','MN','MS','MT','MU','MV','M#','NR','QL','QM','QN','QO','QP','QQ','Q#',
+'RD','RK','RL','RM','RN','RO','RP','RQ','RT','R#','T','TK','TL','TM','TN','TO','T#'];
+
 var organizationBlacklist = 
     ['Agency for International Development','Department of Veterans Affairs','Department of Health and Human Services'];
 
@@ -93,5 +99,6 @@ exports.config = {
     blacklist : {
         organizations : organizationBlacklist,
         titleWords : titleWordBlacklist
-    }
+    },
+    fundingCatWhitelist : fundingCatWhitelist
 }
