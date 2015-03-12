@@ -215,8 +215,6 @@ function removeBlackListItems(opps) {
             }
         }
     }
-
-    console.log(blacklist);
 }
 
 function createItemFromOpp(obj) {
