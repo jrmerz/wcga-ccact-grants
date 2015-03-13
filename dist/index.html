@@ -295,7 +295,7 @@ one or more zip code.</div>
 	  ga('send', 'pageview');
 
 	  $(window).on('hashchange', function(){
-	  	ga('send','pageview',{'page': location.pathname+location.search+location.hash});
+	  	ga('send','pageview',{'page': location.pathname+location.search+ decodeURIComponent(location.hash.replace(/#/,'')) });
 	  });
   }
   initAnalytics();
