@@ -18,6 +18,7 @@
     "bootstrap": "*",
     "font-awesome": "*",
     "handlebars": "*",
-    "animate-css": "*"
+    "animate-css": "*",
+    "jquery.cookie": "~1.4.1"
   }
 }

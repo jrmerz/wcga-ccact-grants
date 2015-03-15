@@ -186,7 +186,12 @@ WCGA.WizardPanel = function(editMode) {
         '</div>'
     );
 
-    if( editMode ) panel.find('.wizard-chart-outer').hide();
+    if( editMode ) {
+        panel.find('.wizard-chart-outer').html('')
+            .removeClass('wizard-chart-outer')
+            .addClass('wizard-add-result');
+        panel.find('.wizard-search-root').hide();
+    }
 
     var cPanel = null;
 
@@ -293,8 +298,8 @@ WCGA.WizardPanel = function(editMode) {
                 {key: '$500K to $1M', type: 'checkbox', searchOnly : true},
                 {key: '$1M to $10M', type: 'checkbox', searchOnly : true},
                 {key: 'greater than $10M', type: 'checkbox', searchOnly : true},
-                {key: 'Min Amount', type: 'number', editOnly : true},
-                {key: 'Max Amount', type: 'number', editOnly : true},
+                {key: 'minAmount', label : 'Min Amount', type: 'text', editOnly : true, isAttribute: true},
+                {key: 'maxAmount', label : 'Max Amount', type: 'text', editOnly : true, isAttribute: true},
             ]
         },
         deadlineText : {
@@ -310,7 +315,7 @@ WCGA.WizardPanel = function(editMode) {
                 {key: 'due in 3 to 6 months', type: 'checkbox', searchOnly : true},
                 {key: 'due after 6 months', type: 'checkbox', searchOnly : true},
                 {key: 'Unspecified due date', type: 'checkbox', searchOnly : true},
-                {key: 'date', type: 'text', editOnly: true, isAttribute: true}
+                {key: 'duedate', editLabel : 'Due Date', type: 'text', noLabel: true, editOnly: true, isAttribute: true, placeholder: 'MM/DD/YYYY'}
             ]
         },
         contactInfo : {
@@ -380,6 +385,14 @@ WCGA.WizardPanel = function(editMode) {
             }
             c++;
         }
+    }
+
+    function initEdit() {
+        data.name = WCGA.user.displayName;
+        data.email = WCGA.user.email;
+        schema.contactInfo.panel.find('#wi-contactInfo-name').val(WCGA.user.displayName);
+        schema.contactInfo.panel.find('#wi-contactInfo-email').val(WCGA.user.email);
+        _updateEditLabels();    
     }
 
     function reset() {
@@ -466,8 +479,9 @@ WCGA.WizardPanel = function(editMode) {
             var text = $(
                 '<div class="form-group">'+
                     '<label for="'+id+'">'+label+'</label>'+
-                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control wizard-input" '
-                        +(input.multi ? 'multi="'+input.key+'"' : '')+' style="max-width: 200px">'+
+                    '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control wizard-input" '+
+                        (input.multi ? 'multi="'+input.key+'"' : '')+
+                        (input.placeholder ? ' placeholder="'+input.placeholder+'"' : '')+' style="max-width: 200px">'+
                 '</div>'
             );
             text.find('input').on('change', _setAttribute);
@@ -517,7 +531,7 @@ WCGA.WizardPanel = function(editMode) {
     }
 
     function _updateLabels() {
-        var labels = $('.wizard-btn-value');
+        var labels = panel.find('.wizard-btn-value');
 
         labels.each(function(){
             var ele = $(this);
@@ -537,7 +551,7 @@ WCGA.WizardPanel = function(editMode) {
 
     // update the labels (if we are not in edit mode)
     function _updateEditLabels() {
-        var labels = $('.wizard-btn-value');
+        var labels = panel.find('.wizard-btn-value');
 
         labels.each(function(){
             var ele = $(this);
@@ -549,18 +563,56 @@ WCGA.WizardPanel = function(editMode) {
                 } else {
                     ele.text(data[attr]);
                 }
+            } else if( attr == 'awardAmountText' && data.minAmount !== undefined && data.maxAmount !== undefined ) {
+                ele.text('$'+data.minAmount.replace(/\D/,'') +' to $'+data.maxAmount.replace(/\D/,'') );
+            } else if( attr == 'contactInfo' && data.name ) {
+                 ele.text(data.name);
             } else {
                 ele.text('[Not Set]');
             }
         });
+
+
+        html = '<h4>Grant</h4><ul>'
+        for( var key in data ) {
+            var label = getLabel(key);
+
+            if( Array.isArray(data[key]) ) {
+                html += '<li><b>'+label+':</b> <span style="color:#888">'+data[key].join(', ')+'</span></li>';
+            } else if ( key == 'link' ) {
+                html += '<li><b>'+label+':</b> <a href="'+data[key]+'" target="_blank">'+data[key]+'</a></li>';
+            } else {
+                html += '<li><b>'+label+':</b> <span style="color:#888">'+data[key]+'</span></li>';
+            }  
+        }
+        $('.wizard-add-result').html(html+'</ul>');
         console.log(data);
     }
+
+    function getLabel(newkey) {
+        for( var key in schema ) {
+            if( !schema[key].inputs ) return;
+
+            for( var i = 0; i < schema[key].inputs.length; i++ ) {
+                if( schema[key].inputs[i].key == newkey ) {
+                    if( schema[key].inputs[i].label ) return schema[key].inputs[i].label;
+                    return key;
+                }
+            }
+
+            if( key == newkey && schema[key].editLabel ) {
+                return schema[key].editLabel;
+            }
+        }
+        return newkey;
+    }
+
 
     // update the center visible panel
     function _setMainPanel(e) {
         if( cPanel ) cPanel.detach();
         
-        $('.wizard-btn').removeClass('active');
+        panel.find('.wizard-btn').removeClass('active');
         $(this).addClass('active');
 
         var panelName = $(this).attr('attribute');
@@ -580,6 +632,10 @@ WCGA.WizardPanel = function(editMode) {
         return panel;
     }
 
+    function getSchema() {
+        return schema;
+    }
+
     function fire(event, data) {
         if( !listeners[event] ) return;
         for( var i = 0; i < listeners[event].length; i++ ) {
@@ -597,6 +653,7 @@ WCGA.WizardPanel = function(editMode) {
         reset : reset,
         getData : getData,
         getPanel : getPanel,
-        on : on
+        on : on,
+        initEdit : initEdit
     }
 };

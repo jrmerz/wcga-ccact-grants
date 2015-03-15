@@ -165,6 +165,17 @@ html, body {
 	text-shadow: 3px 3px 2px #ddd;
 	display: inline-block;
 }
+.wizard-add-result { 
+	margin: 0 20px;
+	padding: 10px;
+	border-radius: 0 0 6px 6px;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+}
+.wizard-panel-root {
+	overflow: hidden;
+}
 /* wizard */
 
 
