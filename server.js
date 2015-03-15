@@ -14,6 +14,8 @@ var logger = global.logger;
 
 // express app
 exports.bootstrap = function(server) {
+    require('./lib/auth');
+
     app.get('/rest/schema', function(req, resp) {
         resp.setHeader("content-type", "application/json");
         fs.createReadStream(__dirname+"/lib/schema.json").pipe(resp);

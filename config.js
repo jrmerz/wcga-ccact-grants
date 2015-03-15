@@ -3,7 +3,7 @@ exports.debug = true;
 
 exports.node = 'node';
 
-exports.dev = false;
+exports.dev = true;
 
 exports.db = {
 	// start command for mongo
@@ -37,7 +37,7 @@ exports.server = {
 	host : "localhost",
 	
 	// port outside world goes to.  most likely 80
-	remoteport : 80,
+	remoteport : 3003,
 	
 	// local port on machine
 	localport : 3003,
@@ -47,3 +47,5 @@ exports.server = {
 	
 	script : "/Users/jrmerz/dev/personal/wcga-ccact-grants/server.js"
 }
+
+exports.admins = ['jrmerz@gmail.com']
