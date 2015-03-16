@@ -416,7 +416,8 @@ WCGA.WizardPanel = function(editMode) {
         
 
         // update all labels
-        _updateLabels();
+        if( !editMode ) _updateLabels();
+        else _updateEditLabels();
 
         fire('update', data);
     }
@@ -585,8 +586,38 @@ WCGA.WizardPanel = function(editMode) {
                 html += '<li><b>'+label+':</b> <span style="color:#888">'+data[key]+'</span></li>';
             }  
         }
-        $('.wizard-add-result').html(html+'</ul>');
+        html += '</ul>';
+
+        html += '<div style="margin-top:15; text-align:center">'+
+                    '<div id="suggest-error-root"></div>'+
+                    '<div><a class="btn btn-primary" id="suggest-btn">Suggest!</a></div>'+
+                '</div>';
+
+        $('.wizard-add-result')
+            .html(html)
+            .find('#suggest-btn').on('click', suggest);
         console.log(data);
+    }
+
+    function suggest() {
+        $('#suggest-btn').addClass('disabled').html('<i class="fa fa-spinner fa-spin"></i> Suggesting...');
+
+        $.ajax({
+            type : 'POST',
+            data : data,
+            url : '/rest/suggest',
+            success : function(resp) {
+                $('#suggest-btn').removeClass('disabled').html('Suggest!');
+                if( resp.error ) return alert(resp.message);
+
+                alert('Success!');
+                reset();
+            },
+            error : function() {
+                alert('Server Error :(');
+                $('#suggest-btn').removeClass('disabled').html('Suggest!');
+            }
+        });
     }
 
     function getLabel(newkey) {

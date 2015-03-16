@@ -5,7 +5,7 @@ WCGA.add = (function() {
     var chart;
 
     var login = $(
-        '<div style="text-align:center; margin-top:100px">'+
+        '<div style="text-align:center; padding-top:100px; border-top: 1px solid #ccc">'+
             '<div class="panel panel-primary" style="display:inline-block; text-align:left">'+
                 '<div class="panel-heading">'+
                     '<h3 class="panel-title">Login</h3>'+
@@ -24,7 +24,8 @@ WCGA.add = (function() {
             return;
         }
 
-        var userPanel = $('<div>Welcome, '+WCGA.user.displayName+" <a href='/logout'>Signout</a></div>");
+        var userPanel = $('<div>Welcome, '+WCGA.user.displayName+" <a href='/logout' class='btn btn-link pull-right'>Signout</a>"+
+                "<br /><a class='btn btn-link'>My Suggestions</a></div>");
         $('#add-user').append(userPanel);
 
         widget = new WCGA.WizardPanel(true);
