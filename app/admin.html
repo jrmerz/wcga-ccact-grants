@@ -14,6 +14,8 @@
     <script src="js/admin.js"></script>
     <!-- endbuild -->
 
+    <script src="scripts/user.js"></script>
+
     <!-- build:css css/build.css -->
     <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
@@ -25,17 +27,23 @@
 <body>
     <h2 class="page-header">WGCA Funding Catalog <small>Admin Interface</small></h2>
 
-    <div>
-        Suggested Grant Status:
-        <select id="status">
-            <option value="pending">Pending</option>
-            <option value="rejected">Rejected</option>
-            <option value="approved">Approved</option>
-        </select>
+    <div style="padding: 10px">
+        <div style="margin-bottom: 20px">
+            <h4 style="margin: 1px">Welcome, <span id="username"></span></h4>
+            <div>Use the select box to load grants with a certain status.</div>
+        </div>
+
+        <div>
+            Suggested Grant Status:
+            <select id="status">
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+                <option value="approved">Approved</option>
+            </select>
+        </div>
+
     </div> 
 
-    <div>
-
-    </div>
+    <div id="response" style="padding: 15px"></div>
 </body>
 </html>
