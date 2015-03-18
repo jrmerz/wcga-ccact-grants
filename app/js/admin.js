@@ -3,6 +3,7 @@ var WCGA = {};
 WCGA.admin = (function(){
 
     var currentStatus = '';
+    var statusMap = {};
     var ignoreVars = ['_id', 'status', 'history', 'catalogName', 'suggestedBy', 'inserted', 'link', 'title'];
     var labelMap = {
         name : 'Contact Name',
@@ -35,9 +36,11 @@ WCGA.admin = (function(){
             var item = resp[i];
 
             html += 
-                '<div class="panel panel-primary" style="margin: 10px 20px">' +
+                '<div class="panel '+getStatusClass(currentStatus)+'" style="margin: 10px 20px" item="'+item._id+'">' +
                     '<div class="panel-heading">'+
-                        item.title+' '+createSelector()+
+                        item.title+' '+
+                        (item.history.length > 0 ? '<span class="pull-right updated-by">By '+item.history[item.history.length-1].user+'</span>' : '')+
+                        createSelector(item._id, currentStatus)+
                     '</div>'+
                     '<div class="panel-body">'+
                         '<div><a href="'+item.link+'" target="_blank">'+item.link+'</a></div>'+
@@ -59,15 +62,52 @@ WCGA.admin = (function(){
                     '</div>'+
                 '</div>';
         }
+
         $('#response').html(html);
+        $('#response').find('.status-selector').on('change', updateStatus);
     }
 
-    function createSelector() {
-        return '<select class="pull-right">'+
-            '<option value="pending">Pending</option>'+
-            '<option value="approved">Approved</option>'+
-            '<option value="rejected">Rejected</option>'+
-        '</select>';
+    function createSelector(id, status) {
+        if( status ) statusMap[id] = status;
+        else status = statusMap[id];
+
+        return '<span class="pull-right"><select class="status-selector" item="'+id+'" >'+
+            '<option value="pending" '+(status == 'pending' ? 'selected' : '')+'>Pending</option>'+
+            '<option value="approved" '+(status == 'approved' ? 'selected' : '')+'>Approved</option>'+
+            '<option value="rejected" '+(status == 'rejected' ? 'selected' : '')+'>Rejected</option>'+
+        '</select></span>';
+    }
+
+    function updateStatus() {
+        var $this = $(this);
+
+        var newStatus = $this.val();
+        var id = $this.attr('item');
+
+        var parent = $this.parent()
+        parent.html('<i class="fa fa-spinner fa-spin"></i> Changing...');
+
+        $.get('/rest/setStatus?id='+id+'&status='+newStatus, function(resp) {
+            if( resp.error ) {
+                console.log(resp);
+                alert('Server error setting status :(');
+                parent.html(createSelector(id));
+                parent.find('status-selector').on('change', updateStatus);
+                return;
+            }
+
+            parent.html(createSelector(id, newStatus));
+            parent.find('.status-selector').on('change', updateStatus);
+
+            $('.panel[item="'+id+'"]').attr('class', 'panel '+getStatusClass(newStatus));
+            $('.panel[item="'+id+'"] .updated-by').html('&nbsp;By '+WCGA.user.email);
+        });
+    }
+
+    function getStatusClass(status) {
+        if( status == 'pending' ) return 'panel-default';
+        if( status == 'approved' ) return 'panel-primary';
+        if( status == 'rejected' ) return 'panel-danger';
     }
 
     function getLabel(key) {

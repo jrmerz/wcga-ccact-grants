@@ -20,8 +20,11 @@ exports.db = {
     indexedFilters : ['category','fundingSource','eligibleApplicants','assistanceType',
     					'awardAmountText','deadlineText'],  
 
+    // sort by text score if text provided
+    useMongoTextScore : true,
+
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
-    sortBy            : 'title',
+    sortBy            : 'dueDate',
     
     // currently Mongo only allows the creation of text search on one attribute.  MQE will
     // combine all filters listed below into a single attribute that will be used for
