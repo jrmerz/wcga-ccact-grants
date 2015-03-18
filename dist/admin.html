@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#0b5b9a"> 
+    
+    <title>WGCA Funding Catalog - Admin Interface</title>
+
+    <script src="scripts/dfc9b178.build.js"></script>
+
+    <script src="scripts/user.js"></script>
+
+    <link rel="stylesheet" href="css/3a5c93a1.build.css">
+
+</head>
+<body>
+    <h2 class="page-header">WGCA Funding Catalog <small>Admin Interface</small></h2>
+
+    <div style="padding: 10px">
+        <div style="margin-bottom: 20px">
+            <h4 style="margin: 1px">Welcome, <span id="username"></span></h4>
+            <div>Use the select box to load grants with a certain status.</div>
+        </div>
+
+        <div>
+            Suggested Grant Status:
+            <select id="status">
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+                <option value="approved">Approved</option>
+            </select>
+        </div>
+
+    </div> 
+
+    <div id="response" style="padding: 15px"></div>
+</body>
+</html>
