@@ -45,6 +45,7 @@
 	
 </head>
 <body>
+<div id="top"></div>
 
 <div id="home" class="page" style="margin:0;padding:0">
 
@@ -250,6 +251,38 @@ one or more zip code.</div>
   </div>
 </div>
 
+<div class="modal fade" id="blacklist-popup" tabindex="-1" role="dialog" aria-labelledby="blacklist-label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="blacklist-label">Blacklist</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="help-text" style="padding: 15px 0">Please provide a reason for blacklisting grant</div>
+      	<table class="table">
+      		<tr>
+      			<td>ID</td>
+      			<td id="blacklist-id"></td>
+      		</tr>
+      		<tr>
+      			<td>Title</td>
+      			<td id="blacklist-title"></td>
+      		</tr>
+      		<tr>
+      			<td>Reason</td>
+      			<td><textarea id="blacklist-reason"></textarea></td>
+      		</tr>
+      	</table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default" id="blacklist-btn">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="wizard" class="page">
 
 
@@ -299,7 +332,7 @@ one or more zip code.</div>
 	<h4>WGCA Funding Catalog</h4>
 
 	<div class="jumbotron" style="text-align:center">
-		<h1 style="text-align:center; color: red; text-shadow: 2px 2px 0 white" class="animated tada">
+		<h1 style="text-align:center; color: #d9534f; text-shadow: 2px 2px 0 white" class="animated tada">
 			<i class="fa fa-exclamation-triangle"></i> Oooh No :(
 		</h1>
 

@@ -12,6 +12,7 @@ WCGA.result = (function() {
 	var loaded = false;
 	var waiting = null;
 	
+	var currentResult = {};
 	var loadHandlers = [];
 	var ignoreAttrs = ['_id', 'count', 'lengths'];
 	
@@ -44,6 +45,11 @@ WCGA.result = (function() {
 			$('#badness').hide();
 			updateResult(result);
 		});
+
+		if( WCGA.user.admin ) {
+			$('#blacklist-popup').modal({show: false});
+			$('#blacklist-btn').on('click', blacklist);
+		}
 	}
 	
 	// fires when template is loaded
@@ -59,13 +65,57 @@ WCGA.result = (function() {
 			return;
 		}
 		
+		currentResult = result;
 		$('#result').html(getResultHtml(result));
 		
 		$('.result-back-btn').on('click', function(){
 			$(window).trigger('back-to-search-event');
 		});
+
+		if( WCGA.user.admin ) {
+			var btn = $('<a class="btn btn-default"><i class="fa fa-trash"></i> Remove</a>').on('click', showBlacklist);
+
+			$('#outer-blacklist')
+				.append(btn)
+				.show()
+		}
 	}
 
+	function showBlacklist() {
+		$('#blacklist-id').text(currentResult.id);
+		$('#blacklist-title').text(currentResult.title);
+		$('#blacklist-reason').val('');
+
+		$('#blacklist-popup').modal('show');
+	}
+
+	function blacklist() {
+		var reason = $('#blacklist-reason').val();
+		if( !reason ) return alert('You must provide a reason');
+
+		$('#blacklist-btn').addClass('disabled').html('<i class="fa fa-spinner fa-spin"></i> Blacklisting...');
+
+		$.ajax({
+			url : '/rest/blacklist',
+			type : 'POST',
+			data : {
+				id : currentResult.id,
+				title : currentResult.title,
+				reason : reason
+			},
+			success : function(resp) {
+				$('#blacklist-btn').removeClass('disabled').html('Remove');
+				if( resp.error ) return alert('Server error blacklisting grant :(');
+
+				alert('Success!');
+				$('#blacklist-popup').modal('hide');
+			},
+			error : function() {
+				$('#blacklist-btn').removeClass('disabled').html('Remove');
+				alert('Server error blacklisting grant :(');
+			}
+		})
+	}
 
 	function getResultHtml(result) {
 		var dataTemplate = {

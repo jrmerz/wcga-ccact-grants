@@ -31,6 +31,8 @@ WCGA.app = (function() {
 			WCGA.wizard.init();
 			WCGA.add.init();
 		});
+
+		if( WCGA.user.admin ) $('#top').html('<a class="btn btn-link" href="/admin.html"><i class="fa fa-cogs"></i> Admin Interface</a>');
 	});
 	
 	function _updatePage(page) {
@@ -40,7 +42,7 @@ WCGA.app = (function() {
 		
 		if( validPages.indexOf(page) == -1 ) page = DEFAULT_PAGE;
 		
-		$('#'+cPage).hide();
+		$('.page').hide();
 		$('#'+page).show();
 		
 		cPage = page;

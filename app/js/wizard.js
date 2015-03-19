@@ -596,7 +596,6 @@ WCGA.WizardPanel = function(editMode) {
         $('.wizard-add-result')
             .html(html)
             .find('#suggest-btn').on('click', suggest);
-        console.log(data);
     }
 
     function suggest() {

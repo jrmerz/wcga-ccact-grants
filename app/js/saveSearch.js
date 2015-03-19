@@ -88,7 +88,7 @@ WCGA.saveSearch = (function() {
                 .css('top', offset.top).css('left', offset.left+ele.width()+25)
                 .html(html)
                 .show();
-        }).on('mouseout', function(){
+        }).on('mouseout', function(e){
             $('#current-saved-search-list-preview').hide();
         });
 

@@ -15,6 +15,7 @@ var logger = global.logger;
 // express app
 exports.bootstrap = function(server) {
     require('./lib/auth');
+    require('./lib/blacklist');
     require('./lib/suggest').init();
 
     app.get('/rest/schema', function(req, resp) {
