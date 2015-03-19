@@ -41,7 +41,9 @@ module.exports = function (grunt) {
                 files: {
                     src: [
                         '<%= yeoman.dist %>/scripts/build.js',
-                        '<%= yeoman.dist %>/css/build.css'
+                        '<%= yeoman.dist %>/css/build.css',
+                        '<%= yeoman.dist %>/scripts/admin.js',
+                        '<%= yeoman.dist %>/css/admin.css'
                     ]
                 }
             }
@@ -56,7 +58,7 @@ module.exports = function (grunt) {
                 dest: '<%= yeoman.dist %>',
                 verbose : true
             },
-            html: '<%= yeoman.app %>/index.html'
+            html: ['<%= yeoman.app %>/admin.html','<%= yeoman.app %>/index.html'],
         },
 
         // Performs rewrites based on rev and the useminPrepare configuration
