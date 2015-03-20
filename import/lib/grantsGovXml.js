@@ -64,7 +64,11 @@ for( var key in schema.eligibleApplicants ) {
     }
 }
 
-exports.run = function(collection, callback) {
+var blacklist;
+
+exports.run = function(collection, bl, callback) {
+    blacklist = bl;
+
     var date = new Date();
     var m = date.getMonth()+1;
     var d = date.getDate();
@@ -96,6 +100,7 @@ function process(err, xml, collection, callback) {
     var items = [];
     for( var i = 0; i < active.length; i++ ) {
         var item = createItemFromOpp(active[i]);
+        item.id = md5(item.link);
         items.push(item);
     }
 
@@ -113,7 +118,6 @@ function insert(collection, items, callback) {
         items,
         function(item, next){
 
-            item.id = md5(item.link);
             item.md5 = md5(JSON.stringify(item));
 
             collection.findOne({link: item.link}, function(err, mongoItem) {
@@ -182,7 +186,7 @@ function upsert(item, collection, next) {
 }
 
 function removeBlackListItems(opps) {
-    var blacklist = [];
+    var blacklisted = [];
 
     for( var i = opps.length-1; i >= 0; i-- ) {
 
@@ -194,14 +198,20 @@ function removeBlackListItems(opps) {
             }
         }
         if( !validCats ) {
-            blacklist.push(opps[i].title);
+            blacklisted.push(opps[i].title);
+            opps.splice(i, 1);
+            continue;
+        }
+
+        if( blacklist.indexOf(opps[i].id) > -1 ) {
+            blacklisted.push(opps[i].title);
             opps.splice(i, 1);
             continue;
         }
 
 
         if( opps[i].office && config.blacklist.organizations.indexOf(opps[i].office) != -1 ) {
-            blacklist.push(opps[i].title);
+            blacklisted.push(opps[i].title);
             opps.splice(i, 1);
             continue;
         }
@@ -209,7 +219,7 @@ function removeBlackListItems(opps) {
 
         for( var j = 0; j < config.blacklist.titleWords.length; j++ ) {
             if( opps[i].title.indexOf(config.blacklist.titleWords[j]) != -1 ) {
-                blacklist.push(opps[i].title);
+                blacklisted.push(opps[i].title);
                 opps.splice(i, 1);
                 break;
             }

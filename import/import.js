@@ -7,6 +7,7 @@ var MongoClient = require('mongodb').MongoClient, db, collection;
 var importLog, lastRun, config, count;
 
 var grantsGov = require('./lib/grantsGovXml');
+var removeExpired = require('./removeExpired');
 
 var verbose = false;
 
@@ -42,21 +43,40 @@ function connect() {
 			return;
 		}
 
-		db.collection(config.db.mainCollection, function(err, c) { 
+		db.collection('blacklist', function(err, c) { 
 			if( err ) {
-				console.log('unable to connect to collection: '+config.db.mainCollection);
+				console.log('unable to connect to collection: blacklist');
 				console.log(err);
 				return;
 			}
-			collection = c;
 
-			grantsGov.run(c, function(){
-				grantsGov.cleanUpZips();
-				console.log('done');
-				process.exit(1);
+			c.find({}, {id: 1}).toArray(function(err, resp){
+				if( err ) return console.log(err);
+				
+				var blacklist = [];
+				for( var i = 0; i < resp.length; i++ ) blacklist.push(resp[i].id);
+
+				connectToMain(blacklist);
 			});
-			
 		});
+	});
+}
+
+function connectToMain(blacklist) {
+	db.collection(config.db.mainCollection, function(err, c) { 
+		if( err ) {
+			console.log('unable to connect to collection: '+config.db.mainCollection);
+			console.log(err);
+			return;
+		}
+		collection = c;
+
+		grantsGov.run(c, blacklist, function(){
+			grantsGov.cleanUpZips();
+
+			removeExpired.run(db, collection);
+		});
+		
 	});
 }
 
