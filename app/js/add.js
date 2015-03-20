@@ -11,7 +11,8 @@ WCGA.add = (function() {
                     '<h3 class="panel-title">Login</h3>'+
                 '</div>'+
                 '<div class="panel-body" style="text-align: center">'+
-                    '<div><a class="btn btn-default" href="/auth/google">Login with Google</a></div>'+
+                    '<div style="margin-bottom: 15px"><a class="btn btn-default" href="/auth/google"><i class="fa fa-google"></i> Login with Google</a></div>'+
+                    //'<div><a class="btn btn-default" href="/auth/yahoo"><i class="fa fa-yahoo"></i> Login with Yahoo</a></div>'+
                     '<div class="help-text">To suggest a grant you must first login in a Google Account.</div>'+
                 '</div>'+
             '</div>'+
@@ -60,14 +61,32 @@ WCGA.add = (function() {
             var html = '<ul class="list-group">';
             for( var i = 0; i < resp.length; i++ ) {
                 html += 
-                    '<li class="list-group-item">'+
+                    '<li class="list-group-item" grant="'+resp[i]._id +'">'+
                         '<span class="pull-right label '+getLabelClass(resp[i].status)+'">'+resp[i].status+'</span>'+
                         resp[i].title+'<br />'+
                         '<a href="'+resp[i].link+'" target="_blank">'+resp[i].link+'</a>'+
+                        '<div style="text-align:right"><a class="btn btn-danger remove-suggest-btn" style="font-size: 16px" grant="' + 
+                            resp[i]._id +'"><i class="fa fa-trash"></i></a></div>'+
                     '</li>';
             }
             html += '</ul>';
             $('#my-suggestions-content').html(html);
+
+            $('#my-suggestions-content').find('.remove-suggest-btn').on('click', function(){
+                if( !confirm('Are you sure you want to remove this suggestion?') ) return;
+
+                var btn = $(this);
+                btn.addClass('disabled').html('<i class="fa fa-spinner fa-spin"></i>');
+                $.get('/rest/removeSuggestion?id='+btn.attr('grant'), function(resp){
+                    btn.removeClass('disabled').html('<i class="fa fa-trash"></i>');
+
+                    if( resp.error ) return alert('Error removing grant :(');
+
+                    alert('Success!');
+                    $('li[grant="'+btn.attr('grant')+'"]').remove();
+                });
+                
+            });
         });
     }
 

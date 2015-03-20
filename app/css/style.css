@@ -304,6 +304,10 @@ html, body {
 	color       : #888;
 }
 
+.tab-panel {
+	padding: 10px;
+}
+
 del {
 	color : #b94a48;
 	border-radius : 5px;
