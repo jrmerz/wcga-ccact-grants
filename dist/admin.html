@@ -8,11 +8,11 @@
     
     <title>WGCA Funding Catalog - Admin Interface</title>
 
-    <script src="scripts/615fce3f.admin.js"></script>
+    <script src="scripts/5feca1ab.admin.js"></script>
 
     <script src="scripts/user.js"></script>
 
-    <link rel="stylesheet" href="css/3a5c93a1.admin.css">
+    <link rel="stylesheet" href="css/4cdffb1d.admin.css">
 
 </head>
 <body>
@@ -21,20 +21,31 @@
     <div style="padding: 10px">
         <div style="margin-bottom: 20px">
             <h4 style="margin: 1px">Welcome, <span id="username"></span></h4>
-            <div>Use the select box to load grants with a certain status.</div>
         </div>
 
-        <div>
-            Suggested Grant Status:
-            <select id="status">
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
-                <option value="approved">Approved</option>
-            </select>
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a aria-controls="suggested" role="tab" panel="suggested">Suggestions</a></li>
+            <li role="presentation"><a aria-controls="blacklisted" role="tab" panel="blacklisted">Blacklisted Grants</a></li>
+        </ul>
+
+
+        <div id="suggested" class="tab-panel">
+            <div>
+                Suggested Grant Status:
+                <select id="status">
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="approved">Approved</option>
+                </select>
+            </div>
+
+            <div id="response" style="padding: 15px"></div>
         </div>
+
+        <div id="blacklisted" style="display:none" class="tab-panel"></div>
 
     </div> 
 
-    <div id="response" style="padding: 15px"></div>
+    
 </body>
 </html>
