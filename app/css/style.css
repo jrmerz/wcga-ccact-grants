@@ -176,6 +176,10 @@ html, body {
 .wizard-panel-root {
 	overflow: hidden;
 }
+.wizard-select-outer {
+	padding-bottom: 10px;
+	text-align: center;
+}
 /* wizard */
 
 

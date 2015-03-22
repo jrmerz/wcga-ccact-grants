@@ -168,16 +168,17 @@ WCGA.WizardPanel = function(editMode) {
                 '<div class="row">' +
                     '<div class="col-sm-3 wizard-left"></div>' + 
                     '<div class="col-sm-6 wizard-main">'+
+                        '<div class="wizard-select-outer"><select class="wizard-select form-control"></select></div>'+
                         '<div class="wizard-panel-root"></div>'+
                         '<div class="wizard-search-root">'+
-                            '<div class="row">' +
-                                '<div class="col-sm-6">' +
+                            '<table style="width: 100%"><tr>' +
+                                '<td>' +
                                     '<a class="btn btn-default" id="wizard-search-btn">View Search Results</a>' +
-                                '</div>' +
-                                '<div class="col-sm-6 wizard-num-results-outer">' +
+                                '</td>' +
+                                '<td class="wizard-num-results-outer">' +
                                     'Number of Results: <span class="wizard-num-results"></span>' +
-                                '</div>' +
-                            '</div>'+
+                                '</td>' +
+                            '</tr></table>'+
                         '</div>'+
                     '</div>'+ 
                     '<div class="col-sm-3 wizard-right"></div>' + 
@@ -195,6 +196,8 @@ WCGA.WizardPanel = function(editMode) {
             .addClass('wizard-add-result');
         panel.find('.wizard-search-root').hide();
     }
+
+    $(window).on('resize', resize);
 
     var cPanel = null;
 
@@ -389,6 +392,12 @@ WCGA.WizardPanel = function(editMode) {
             }
             c++;
         }
+
+        panel.find('.wizard-select').on('change', function(){
+            selectPanel($(this).val());
+        });
+
+        resize();
     }
 
     function initEdit() {
@@ -427,16 +436,19 @@ WCGA.WizardPanel = function(editMode) {
     }
 
     function _initPanel(name, panelSchema, index) {
+        var label = (editMode && panelSchema.editLabel) ? panelSchema.editLabel : panelSchema.label;
         var btn = $(
             '<button class="btn btn-default wizard-btn" attribute="'+name+'">' +
-                '<div><b>'+index+'.</b> '+((editMode && panelSchema.editLabel) ? panelSchema.editLabel : panelSchema.label )+'</div>'+
+                '<div><b>'+index+'.</b> '+label+'</div>'+
                 '<div class="wizard-btn-value" attribute="'+name+'">' + 
                     (editMode ? '[Not Set]' : panelSchema.emptyLabel) + 
                 '</div>'+
             '</button>'
         ).on('click', _setMainPanel);
 
-        var panel = $(
+        panel.find('.wizard-select').append($('<option value="'+name+'">'+label+'</option>'));
+
+        var innerPanel = $(
             '<div class="wizard-panel animated fadeInDown" attribute="'+name+'">' +
                 '<h3>'+((editMode && panelSchema.editLabel) ? panelSchema.editLabel : panelSchema.title)+'</h3>' +
                 '<div class="wizard-panel-inner" '+(panelSchema.fullWidth ? 'style="display:block"' : '')+'></div>' +
@@ -444,10 +456,10 @@ WCGA.WizardPanel = function(editMode) {
             '</div>'
         );
 
-        _initInputs(name, panelSchema.inputs, panel, panelSchema.fullWidth);
+        _initInputs(name, panelSchema.inputs, innerPanel, panelSchema.fullWidth);
 
         panelSchema.button = btn;
-        panelSchema.panel = panel;
+        panelSchema.panel = innerPanel;
     }
 
     function  _initInputs(name, inputs, panel, fullWidth) {
@@ -698,13 +710,18 @@ WCGA.WizardPanel = function(editMode) {
 
     // update the center visible panel
     function _setMainPanel(e) {
+        selectPanel($(e.currentTarget).attr('attribute'));
+    }
+
+    function selectPanel(attribute) {
         if( cPanel ) cPanel.detach();
         
         panel.find('.wizard-btn').removeClass('active');
-        $(this).addClass('active');
+        panel.find('.wizard-btn[attribute="'+attribute+'"]').addClass('active');
 
-        var panelName = $(this).attr('attribute');
-        cPanel = schema[panelName].panel;
+        panel.find('.wizard-select').val(attribute);
+
+        cPanel = schema[attribute].panel;
         panel.find('.wizard-panel-root').append(cPanel);
     }
 
@@ -734,6 +751,17 @@ WCGA.WizardPanel = function(editMode) {
     function on(event, fn) {
         if( listeners[event] ) listeners[event].push(fn);
         else listeners[event] = [fn];
+    }
+
+    function resize() {
+        var w = $(window).width();
+        if( w < 768 ) {
+            panel.find('.wizard-btn').hide();
+            panel.find('.wizard-select-outer').show();
+        } else {
+            panel.find('.wizard-btn').show();
+            panel.find('.wizard-select-outer').hide();
+        }
     }
 
     return {

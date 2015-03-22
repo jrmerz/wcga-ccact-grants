@@ -65,7 +65,7 @@ WCGA.add = (function() {
                         '<span class="pull-right label '+getLabelClass(resp[i].status)+'">'+resp[i].status+'</span>'+
                         resp[i].title+'<br />'+
                         '<a href="'+resp[i].link+'" target="_blank">'+resp[i].link+'</a>'+
-                        '<div style="text-align:right"><a class="btn btn-danger remove-suggest-btn" style="font-size: 16px" grant="' + 
+                        '<div style="text-align:right"><a class="btn btn-link remove-suggest-btn" style="font-size: 16px" grant="' + 
                             resp[i]._id +'"><i class="fa fa-trash"></i></a></div>'+
                     '</li>';
             }
