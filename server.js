@@ -18,6 +18,24 @@ exports.bootstrap = function(server) {
     require('./lib/blacklist');
     require('./lib/suggest').init();
 
+    mqe.setAppQueryParser(function(query){
+        if( !query.filters ) return;
+
+        var found = false;
+        for( var i = 0; i < query.filters.length; i++ ) {
+            if( isZipFilter(query.filters[i]) ) {
+                found = true;
+                break;
+            }
+        }
+
+        if( !found ) {
+            query.filters.push({
+                zipCodes : { $exists: false }
+            });
+        }
+    });
+
     app.get('/rest/schema', function(req, resp) {
         resp.setHeader("content-type", "application/json");
         fs.createReadStream(__dirname+"/lib/schema.json").pipe(resp);
@@ -89,4 +107,19 @@ exports.bootstrap = function(server) {
     logger.info('serving: '+__dirname+ (config.dev ? '/app' : '/dist'));
 };
 
+
+function isZipFilter(filter) {
+    if( filter['$or'] === undefined ) return false;
+    if( !Array.isArray(filter['$or']) ) return false;
+
+    var zips = [];
+    for( var i = 0; i < filter['$or'].length; i++ ) {
+        if( filter['$or'][i].zipCodes === undefined ) {
+            return false;
+        } else if ( filter['$or'][i].zipCodes['$in'] !== undefined ) {
+            return filter['$or'][i].zipCodes['$in'];
+        }
+    }
+    return false;
+}
 

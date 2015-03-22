@@ -81,7 +81,8 @@ WCGA.admin = (function(){
                         '<div><a href="'+item.link+'" target="_blank">'+item.link+'</a></div>'+
                         '<div style="padding:10px">'+(item.description || 'No description provided')+'</div>'+
                         '<div>'+
-                            '<ul class="list-group">';
+                            '<a class="btn btn-link details-btn" grant="'+item._id+'">Details</a>'+
+                            '<ul class="list-group" style="display:none" id="'+item._id+'-details">';
 
             for( var key in item ) {
                 if( ignoreVars.indexOf(key) != -1 ) continue;
@@ -100,6 +101,10 @@ WCGA.admin = (function(){
 
         $('#response').html(html);
         $('#response').find('.status-selector').on('change', updateStatus);
+        $('#response').find('.details-btn').on('click', function(){
+            var id = $(this).attr('grant');
+            $('#'+id+'-details').toggle('slow');
+        });
     }
 
     function createSelector(id, status) {

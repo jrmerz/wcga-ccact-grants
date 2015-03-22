@@ -154,6 +154,9 @@ WCGA.wizard = (function() {
 
 WCGA.WizardPanel = function(editMode) {
 
+    // required to add a grant
+    var required = ['title', 'link', 'description', 'name', 'email', 'dueDate'];
+
     var data = {};
 
     var panel = $(
@@ -204,6 +207,7 @@ WCGA.WizardPanel = function(editMode) {
             label : 'Basic Information',
             helpText : 'Basic information about the grant.',
             editOnly : true,
+            fullWidth : true,
             inputs : [
                 {key: 'title', type: 'text', label:'Title', multi: true},
                 {key: 'link', type: 'text', label: 'URL', multi: true},
@@ -233,7 +237,7 @@ WCGA.WizardPanel = function(editMode) {
             emptyLabel : 'No',
             helpText : 'Enter your zip code to find local opportunities.',
             inputs : [
-                {key: 'Zipcodes', type: 'text', noLabel : true },
+                {key: 'Zipcodes', type: 'text', noLabel : true, placeholder : 'Comma separate' },
                 {key: 'wizard-zipcode-buttons', type: 'div'} // placeholder
             ]
         },
@@ -315,7 +319,7 @@ WCGA.WizardPanel = function(editMode) {
                 {key: 'due in 3 to 6 months', type: 'checkbox', searchOnly : true},
                 {key: 'due after 6 months', type: 'checkbox', searchOnly : true},
                 {key: 'Unspecified due date', type: 'checkbox', searchOnly : true},
-                {key: 'duedate', editLabel : 'Due Date', type: 'text', noLabel: true, editOnly: true, isAttribute: true, placeholder: 'MM/DD/YYYY'}
+                {key: 'dueDate', editLabel : 'Deadline', type: 'text', noLabel: true, editOnly: true, isAttribute: true, placeholder: 'MM/DD/YYYY'}
             ]
         },
         contactInfo : {
@@ -435,30 +439,30 @@ WCGA.WizardPanel = function(editMode) {
         var panel = $(
             '<div class="wizard-panel animated fadeInDown" attribute="'+name+'">' +
                 '<h3>'+((editMode && panelSchema.editLabel) ? panelSchema.editLabel : panelSchema.title)+'</h3>' +
-                '<div class="wizard-panel-inner"></div>' +
+                '<div class="wizard-panel-inner" '+(panelSchema.fullWidth ? 'style="display:block"' : '')+'></div>' +
                 ((!editMode && panelSchema.helpText) ? '<div class="wizard-panel-help">'+panelSchema.helpText+'</div>' : '') +
             '</div>'
         );
 
-        _initInputs(name, panelSchema.inputs, panel);
+        _initInputs(name, panelSchema.inputs, panel, panelSchema.fullWidth);
 
         panelSchema.button = btn;
         panelSchema.panel = panel;
     }
 
-    function  _initInputs(name, inputs, panel) {
+    function  _initInputs(name, inputs, panel, fullWidth) {
         var inputPanel = panel.find('.wizard-panel-inner');
 
         for( var i = 0; i < inputs.length; i++ ) {
             if( editMode && inputs[i].searchOnly ) continue;
             if( !editMode && inputs[i].editOnly ) continue;
 
-            var ele = _initInput(name, inputs[i]);
+            var ele = _initInput(name, inputs[i], fullWidth);
             inputPanel.append(ele);
         }
     }
 
-    function _initInput(name, input) {
+    function _initInput(name, input, fullWidth) {
         var root = $('<div></div>');
         var id = _getId(name, input.key);
 
@@ -482,7 +486,7 @@ WCGA.WizardPanel = function(editMode) {
                     '<label for="'+id+'">'+label+'</label>'+
                     '<input type="'+input.type+'" id="'+id+'" attribute="'+attrName+'" class="form-control wizard-input" '+
                         (input.multi ? 'multi="'+input.key+'"' : '')+
-                        (input.placeholder ? ' placeholder="'+input.placeholder+'"' : '')+' style="max-width: 200px">'+
+                        (input.placeholder ? ' placeholder="'+input.placeholder+'"' : '')+' style="'+(!fullWidth ? 'max-width: 200px' : '')+'">'+
                 '</div>'
             );
             text.find('input').on('change', _setAttribute);
@@ -492,8 +496,8 @@ WCGA.WizardPanel = function(editMode) {
         
         } else if( input.type == 'textarea' ){
 
-            var text = $('<div><label>'+label+'</label><br /><textarea class="form-control" id="'+id+'" attribute="'
-                +(input.multi ? 'multi="'+input.key+'"' : '')+' '+name+'" value="'+input.key+'"></textarea></div>');
+            var text = $('<div><label>'+label+'</label><br /><textarea class="wizard-input form-control" id="'+id+'" attribute="'+
+                attrName+'" '+(input.multi ? 'multi="'+input.key+'"' : '')+' type="text"></textarea></div>');
             text.find('textarea').on('change', _setAttribute);
             root.append(text);
         }
@@ -524,6 +528,8 @@ WCGA.WizardPanel = function(editMode) {
         } else if ( type == 'text' || type == 'number' ) {
             data[name] = ele.val();
         }
+
+        if( data.link && !data.link.match(/(http|https|ftp):\/\/.*/) ) data.link = 'http://'+data.link;
 
         if( !editMode ) _updateLabels();
         else _updateEditLabels();
@@ -568,6 +574,13 @@ WCGA.WizardPanel = function(editMode) {
                 ele.text('$'+data.minAmount.replace(/\D/,'') +' to $'+data.maxAmount.replace(/\D/,'') );
             } else if( attr == 'contactInfo' && data.name ) {
                  ele.text(data.name);
+            } else if( attr == 'deadlineText' && data.dueDate ) {
+                if( data.dueDate.match(/^\d\d\d\d-\d\d-\d\dT.*Z$/) ) {
+                    var parts = data.dueDate.replace(/T.*/,'').split('-');
+                    ele.text(parts[1]+'/'+parts[2]+'/'+parts[0]);
+                } else {
+                    ele.text(data.dueDate);
+                }
             } else {
                 ele.text('[Not Set]');
             }
@@ -582,14 +595,17 @@ WCGA.WizardPanel = function(editMode) {
                 html += '<li><b>'+label+':</b> <span style="color:#888">'+data[key].join(', ')+'</span></li>';
             } else if ( key == 'link' ) {
                 html += '<li><b>'+label+':</b> <a href="'+data[key]+'" target="_blank">'+data[key]+'</a></li>';
-            } else {
+            } else if ( key == 'dueDate' && data.dueDate.match(/^\d\d\d\d-\d\d-\d\dT.*Z$/) ) {
+                var parts = data.dueDate.replace(/T.*/,'').split('-');
+                html += '<li><b>'+label+':</b> <span style="color:#888">'+parts[1]+'/'+parts[2]+'/'+parts[0]+'</span></li>';
+            } else if ( data[key] != '' ) {
                 html += '<li><b>'+label+':</b> <span style="color:#888">'+data[key]+'</span></li>';
             }  
         }
         html += '</ul>';
 
         html += '<div style="margin-top:15; text-align:center">'+
-                    '<div id="suggest-error-root"></div>'+
+                    '<div id="suggest-error-root" class="alert alert-danger" style="display:none"></div>'+
                     '<div><a class="btn btn-primary" id="suggest-btn">Suggest!</a></div>'+
                 '</div>';
 
@@ -598,16 +614,57 @@ WCGA.WizardPanel = function(editMode) {
             .find('#suggest-btn').on('click', suggest);
     }
 
+    function showError(msg) {
+        $('#suggest-error-root').show().html(msg);
+    }
+
     function suggest() {
+        // make sure date format is correct.
+        if( !data.dueDate ) return showError('Deadline required');
+
+        if( !data.dueDate.match(/^\d\d\d\d-\d\d-\d\dT.*Z$/) ) {
+            if( !data.dueDate.match(/^\d\d?\/\d\d?\/\d\d\d\d$/) ) {
+                return showError('Invalid date format: '+data.dueDate+' should be MM/DD/YYYY');
+            }
+
+            var parts = data.dueDate.split('/');
+            var year = parseInt(parts[2]);
+            var month = parseInt(parts[0]);
+            var day = parseInt(parts[1]);
+
+            var d = new Date(year, month-1, day, 12, 0, 0);
+            data.dueDate = d.toISOString();
+        }
+
+
         $('#suggest-btn').addClass('disabled').html('<i class="fa fa-spinner fa-spin"></i> Suggesting...');
 
         $.ajax({
             type : 'POST',
-            data : data,
+            data : JSON.stringify(data),
+            dataType: 'json',
+            contentType:"application/json; charset=utf-8",
             url : '/rest/suggest',
             success : function(resp) {
                 $('#suggest-btn').removeClass('disabled').html('Suggest!');
-                if( resp.error ) return alert(resp.message);
+                if( resp.error ) {
+                    $('#suggest-error-root').show();
+                    if( resp.code == 100 ) {
+                        var missing = [];
+                        for( var i = 0; i < required.length; i++ ) {
+                            if( data[required[i]] === undefined || data[required[i]] == '' ) {
+                                missing.push(getLabel(required[i]));
+                            }
+                        }
+                        showError('<b>Missing Required:</b> '+missing.join(', '));
+                        
+                    } else {
+                        showError(JSON.stringify(resp.message));
+                    }
+                    return;
+                } else {
+                    $('#suggest-error-root').html('').hide();
+                }
 
                 alert('Success!');
                 reset();
@@ -626,6 +683,7 @@ WCGA.WizardPanel = function(editMode) {
             for( var i = 0; i < schema[key].inputs.length; i++ ) {
                 if( schema[key].inputs[i].key == newkey ) {
                     if( schema[key].inputs[i].label ) return schema[key].inputs[i].label;
+                    if( schema[key].inputs[i].editLabel ) return schema[key].inputs[i].editLabel;
                     return key;
                 }
             }

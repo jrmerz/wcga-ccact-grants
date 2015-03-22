@@ -97,8 +97,8 @@ WCGA.search = (function() {
 		var zipcodes = $('#input-search-zipcode').val().replace(/\s/g,'').split(',');
 		query.filters.push({
 			'$or' : [ 
-				{ zipcode : { '$in' : zipcodes }},
-				{ zipcode : { '$exists' : false }}
+				{ zipCodes : { '$in' : zipcodes }},
+				{ zipCodes : { '$exists' : false }}
 			]
 		});
 		$('#input-search-zipcode').val('')
@@ -426,10 +426,10 @@ WCGA.search = (function() {
 
 		var zips = [];
 		for( var i = 0; i < filter['$or'].length; i++ ) {
-			if( filter['$or'][i].zipcode === undefined ) {
+			if( filter['$or'][i].zipCodes === undefined ) {
 				return false;
-			} else if ( filter['$or'][i].zipcode['$in'] !== undefined ) {
-				return filter['$or'][i].zipcode['$in'];
+			} else if ( filter['$or'][i].zipCodes['$in'] !== undefined ) {
+				return filter['$or'][i].zipCodes['$in'];
 			}
 		}
 		return false;
@@ -451,8 +451,8 @@ WCGA.search = (function() {
 		if( activeZipcodes.length > 0 ) {
 			query.filters.push({
 				'$or' : [ 
-					{ zipcode : { '$in' : activeZipcodes }},
-					{ zipcode : { '$exists' : false }}
+					{ zipCodes : { '$in' : activeZipcodes }},
+					{ zipCodes : { '$exists' : false }}
 				]
 			});
 		}
@@ -519,25 +519,6 @@ WCGA.search = (function() {
 		}
 
 		return '$'+amount.join('');
-	}
-
-	function _hasFilter(item, key) {
-		var filter = {};
-		var tmpQuery = CERES.mqe.getCurrentQuery();
-		filter[key] = item[key];
-		for( var i = 0; i < tmpQuery.filters.length; i++ ) {
-			if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == item[key] ) return true;
-		}
-		return false;
-	}
-	
-	function _createFilterUrl(key, value) {
-		var tmpQuery = CERES.mqe.getCurrentQuery();
-		var filter = {};
-		filter[ESIS.filters[key] ? ESIS.filters[key] : key] = value;
-		tmpQuery.page = 0;
-		tmpQuery.filters.push(filter);
-		return CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"');
 	}
 
 	var loadingTimer = -1;

@@ -45,8 +45,6 @@ exports.process = function(item) {
         item.awardAmountText = 'Unspecified Award';
     }
 
-    debugger;
-
     // set lastUpdatedText
     if( item.lastUpdated ) {
         if( item.lastUpdated.getTime() > lastWeek.getTime() ) {
