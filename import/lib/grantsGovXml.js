@@ -444,7 +444,7 @@ function checkCache(date) {
 function dateStrToDate(date) {
     return new Date(
         parseInt(date.substring(4,8)),
-        parseInt(date.substring(0,2)),
+        parseInt(date.substring(0,2))-1,
         parseInt(date.substring(2,4))
     );
 }
