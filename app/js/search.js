@@ -521,19 +521,9 @@ WCGA.search = (function() {
 		return '$'+amount.join('');
 	}
 
-	var loadingTimer = -1;
 	function _loading(loading) {
-		if( loadingTimer != -1 ) clearTimeout(loadingTimer);
-
-		if( loading ) {	
-			loadingTimer = setTimeout(function(){
-				loadingTimer = -1;
-				$('#loading').show();
-			}, 150);
-		} else {
-			loadingTimer = -1;
-			$('#loading').hide();
-		}
+		if( loading ) $('#loading').show();
+		else $('#loading').hide();
 	}
 
 	

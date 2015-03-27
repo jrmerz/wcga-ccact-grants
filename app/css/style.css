@@ -27,6 +27,14 @@
 	margin-bottom: 2px;
 }
 
+#loading {
+	display    : none;
+	position   : fixed;
+	top        : 0px;
+	text-align : center;
+	width      : 100%;
+}
+
 .page {
 	display: none;
 	padding: 2% 6%;
