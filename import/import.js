@@ -8,6 +8,7 @@ var importLog, lastRun, config, count;
 
 var grantsGov = require('./lib/grantsGovXml');
 var removeExpired = require('./removeExpired');
+var updateSuggestText = require('./suggestText');
 
 var verbose = false;
 
@@ -74,7 +75,10 @@ function connectToMain(blacklist) {
 		grantsGov.run(c, blacklist, function(){
 			grantsGov.cleanUpZips();
 
-			removeExpired.run(db, collection);
+			updateSuggestText.run(db, collection, function(){
+				removeExpired.run(db, collection);
+			});
+			
 		});
 		
 	});
