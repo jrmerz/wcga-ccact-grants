@@ -73,12 +73,31 @@ WCGA.result = (function() {
 		});
 
 		if( WCGA.user.admin ) {
-			var btn = $('<a class="btn btn-default"><i class="fa fa-trash"></i> Remove</a>').on('click', showBlacklist);
+			var btn;
+			if( result.catalogName == 'suggest' ) {
+				var btnInner = $('<a class="btn btn-default"><i class="fa fa-trash"></i> Reject</a>').on('click', reject);
+				btn = $('<div><div class="help-text">This is a suggested grant</div></div>');
+				btn.append(btnInner);
+			} else {
+				btn = $('<a class="btn btn-default"><i class="fa fa-trash"></i> Remove</a>').on('click', showBlacklist);
+			}
+			
 
 			$('#outer-blacklist')
 				.append(btn)
 				.show()
 		}
+	}
+
+	function reject() {
+		if( !confirm('Are you sure you want to reject this grant?') ) return;
+
+		$.get('/rest/setStatus?id='+currentResult.id+'&status=rejected', function(resp) {
+			if( resp.error ) return alert('Server error rejecting grant :(');
+
+			alert('Grant Rejected');
+			window.location = '#search';
+		});
 	}
 
 	function showBlacklist() {
