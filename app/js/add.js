@@ -93,7 +93,7 @@ WCGA.add = (function() {
     function getLabelClass(status) {
         if( status == 'rejected' ) return 'label-danger';
         if( status == 'approved' ) return 'label-success';
-        return '';
+        return 'label-default';
     }
 
     function onShow() {

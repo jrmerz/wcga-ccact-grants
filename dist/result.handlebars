@@ -38,8 +38,8 @@
 			{{#ifCond assitanceType}}
 				<div><b>Assistance Type: </b> <span class="light-gray">{{assitanceType}}</div>
 			{{/ifCond}}
-			{{#ifCond organization}}
-				<div><b>Funding Organization: </b> <span class="light-gray">{{organization}}</div>
+			{{#ifCond category}}
+				<div><b>Catagory: </b> <div class="light-gray" style="padding:10px">{{{category}}}</div></div>
 			{{/ifCond}}
 			{{#ifCond contact}}
 				<div><b>Contact: </b> <div class="light-gray" style="padding:10px">{{{contact}}}</div></div>
@@ -62,8 +62,8 @@
 			{{#ifCond office}}
 				<div><b>Office: </b> <span class="light-gray">{{office}}</div>
 			{{/ifCond}}
-			{{#ifCond category}}
-				<div><b>Catagory: </b> <div class="light-gray" style="padding:10px">{{{category}}}</div></div>
+			{{#ifCond organization}}
+				<div><b>Funding Organization: </b> <span class="light-gray">{{organization}}</div>
 			{{/ifCond}}
 			{{#ifCond costSharing}}
 				<div><b>Cost Sharing: </b> <span class="light-gray">{{costSharing}}</div>
@@ -74,12 +74,13 @@
 		</div>
 	</div>
 
-
+	{{#ifCond additionalEligibilityInfo}}
 	<div class="row" style="padding: 20px 0">
 		<div class="col-md-10 col-md-offset-1">
 			<b>Additional Eligibility Info:  </b> <div class="light-gray" style="padding:10px">{{{additionalEligibilityInfo}}}</div>
 		</div>
 	</div>
+	{{/ifCond}}
 
 	<div style="display:none" id="outer-blacklist"></div>
 

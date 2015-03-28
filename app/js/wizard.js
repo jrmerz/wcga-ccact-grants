@@ -253,6 +253,7 @@ WCGA.WizardPanel = function(editMode) {
             helpText : 'Eligible Applicant specifies who may apply of the opportunity. Individual grants may include '+
                         'additional constraints on the applicants. An entity may belong to multiple eligibility types.',
             inputs : [],
+            hasIndent : true
         },
         category : {
             position : 'left',
@@ -262,9 +263,8 @@ WCGA.WizardPanel = function(editMode) {
             emptyLabel : 'All Categories',
             helpText : 'Identifies the basic functional category or subcategories that identify specific '+
                         'areas of interest. These categories represent the general topic of the funding opportunity.',
-            inputs : [
-                {key: 'wizard-expand-categories', type: 'div'}
-            ], // these will be added in from the schema.json file
+            inputs : [], // these will be added in from the schema.json file
+            hasIndent : true
         },
         keywords : {
             position : 'right',
@@ -345,17 +345,20 @@ WCGA.WizardPanel = function(editMode) {
         for( var key in WCGA.schema[type] ) {
             var input = {
                 key : key,
-                type : 'checkbox',
-                inputs : []
+                type : 'checkbox'
             }
 
-            for( var i = 0; i < WCGA.schema[type][key].length; i++ ) {
-                input.inputs.push({
-                    key : WCGA.schema[type][key][i],
-                    type : 'checkbox'
-                });
-            }
             schema[type].inputs.push(input);
+
+            for( var i = 0; i < WCGA.schema[type][key].length; i++ ) {
+                var input = {
+                    key : WCGA.schema[type][key][i],
+                    type : 'checkbox',
+                    indent : true
+                }
+
+                schema[type].inputs.push(input);
+            }
         }
     }
 
@@ -456,14 +459,34 @@ WCGA.WizardPanel = function(editMode) {
             '</div>'
         );
 
-        _initInputs(name, panelSchema.inputs, innerPanel, panelSchema.fullWidth);
+        _initInputs(name, panelSchema.inputs, innerPanel, panelSchema.fullWidth, panelSchema.hasIndent);
 
         panelSchema.button = btn;
         panelSchema.panel = innerPanel;
     }
 
-    function  _initInputs(name, inputs, panel, fullWidth) {
+    function  _initInputs(name, inputs, panel, fullWidth, hasIndent) {
         var inputPanel = panel.find('.wizard-panel-inner');
+
+        if( hasIndent ) {
+            var expandBtn = $('<a class="btn btn-link" expand="true" attribute="'+name+'">Show Sub-Categories</a>');
+            expandBtn.on('click', function(){
+                var ele = $(this);
+                var expand = ele.attr('expand');
+                var attr = ele.attr('attribute');
+
+                if( expand == 'true' ) {
+                    ele.html('Hide Sub-Categories');
+                    ele.attr('expand', 'false');
+                    inputPanel.find('[indent]').show();
+                } else {
+                    ele.html('Show Sub-Categories');
+                    ele.attr('expand', 'true');
+                    inputPanel.find('[indent]').hide();
+                }
+            });
+            inputPanel.append(expandBtn);
+        }
 
         for( var i = 0; i < inputs.length; i++ ) {
             if( editMode && inputs[i].searchOnly ) continue;
@@ -483,8 +506,9 @@ WCGA.WizardPanel = function(editMode) {
 
         if( input.type == 'checkbox' ) {
             var cb = $(
-                '<div class="checkbox">' +
+                '<div class="checkbox" '+(input.indent ? 'indent style="display:none"' : '')+'>' +
                     '<label>' +
+                        (input.indent ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '')+
                         '<input class="wizard-input" id="'+id+'" type="checkbox" attribute="'+name+'" '+(input.multi ? 'multi="'+
                             input.key+'"' : '')+' value="'+input.key+'" /> '+ label +
                     '</label>' +

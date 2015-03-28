@@ -9,6 +9,7 @@ var parseString = require('xml2js').parseString;
 
 var config = require('./grantsGovConf').config;
 var vocab = require('./controlledVocab');
+var bubble = require('./bubble');
 var schema = require('../../lib/schema.json');
 
 var url = 'http://www.grants.gov/web/grants/xml-extract.html' +
@@ -56,13 +57,7 @@ var etlConfig = {
     numberic : ['maxAmount', 'minAmount', 'numberOfAward', 'estimatedFunding']
 }
 
-// create a lookup object for the attribute 'bubbling'
-var eligibleApplicantsBubble = {};
-for( var key in schema.eligibleApplicants ) {
-    for( var i = 0; i < schema.eligibleApplicants[key].length; i++ ) {
-        eligibleApplicantsBubble[schema.eligibleApplicants[key][i]] = key;
-    }
-}
+
 
 var blacklist;
 
@@ -312,12 +307,6 @@ function createItemFromOpp(obj) {
             
             if( item.eligibleApplicants.indexOf(app.wgca) == -1 ) {
                 item.eligibleApplicants.push(app.wgca);
-
-                // now check if bubble should be added
-                if( eligibleApplicantsBubble[app.wgca] && 
-                    item.eligibleApplicants.indexOf(eligibleApplicantsBubble[app.wgca]) == -1 ) {
-                    item.eligibleApplicants.push(eligibleApplicantsBubble[app.wgca]);
-                }
             }
         }
 
@@ -364,6 +353,9 @@ function createItemFromOpp(obj) {
     for( var key in obj ) {
         if( unknowns.indexOf(key) == -1 ) unknowns.push(key);
     }
+
+    // process category 'bubbling'
+    bubble.process(item);
 
     // process WCGA controlled vocabularies
     vocab.process(item);

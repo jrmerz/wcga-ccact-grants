@@ -48,8 +48,12 @@ function processItem(item, next) {
 
         // prep for update in search
         item.id = item._id+'';
-        delete item._id;
-        delete item.history;
+        delete result._id;
+        delete result.history;
+        delete result.email;
+        delete result.phone;
+        delete result.name;
+        delete result.suggestedBy;
 
         searchCollection.update({id: item.id}, item, function(err, result){
             if( err ) console.log(err);
