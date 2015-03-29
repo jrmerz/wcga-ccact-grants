@@ -34,6 +34,7 @@ WCGA.result = (function() {
 		$(window).bind('result-update-event', function(e, result, error){
 			// double check page
 			var page = window.location.hash.replace(/\/.*/,'');
+			
 			if( page.indexOf('result') == -1 ) return;
 
 			if( error ) {
@@ -46,7 +47,7 @@ WCGA.result = (function() {
 			updateResult(result);
 		});
 
-		if( WCGA.user.admin ) {
+		if( WCGA.user && WCGA.user.admin ) {
 			$('#blacklist-popup').modal({show: false});
 			$('#blacklist-btn').on('click', blacklist);
 		}
@@ -72,7 +73,7 @@ WCGA.result = (function() {
 			$(window).trigger('back-to-search-event');
 		});
 
-		if( WCGA.user.admin ) {
+		if( WCGA.user && WCGA.user.admin ) {
 			var btn;
 			if( result.catalogName == 'suggest' ) {
 				var btnInner = $('<a class="btn btn-default"><i class="fa fa-trash"></i> Reject</a>').on('click', reject);
@@ -87,6 +88,9 @@ WCGA.result = (function() {
 				.append(btn)
 				.show()
 		}
+
+		window.__mqe_lploaded = true;
+		if( window.__mqe_lpready ) window.__mqe_lpready();
 	}
 
 	function reject() {

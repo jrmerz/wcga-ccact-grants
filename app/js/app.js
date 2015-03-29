@@ -12,7 +12,6 @@ WCGA.app = (function() {
 	var schemaListeners = [];
 	
 	$(document).ready(function() {
-		
 		// mqe.js handles the hash parsing and fires this event when search is complete
 		$(window).bind('page-update-event', function(e, hash){
 			_updatePage(hash[0]);
@@ -23,6 +22,13 @@ WCGA.app = (function() {
 			defaultPage:DEFAULT_PAGE,
 			resultQueryParameter : 'id'
 		});
+
+		// assume we are taking a snapshot
+		if(!WCGA.home) {
+			WCGA.result.init();
+			return;
+		}
+
 		WCGA.home.init();
 		WCGA.search.init();
 		WCGA.result.init();
