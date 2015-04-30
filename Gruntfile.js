@@ -60,7 +60,7 @@ module.exports = function (grunt) {
             },
             html: [
                 '<%= yeoman.app %>/admin.html',
-                '<%= yeoman.app %>/index.html', 
+                '<%= yeoman.app %>/index.html',
                 '<%= yeoman.app %>/snapshot.html'
             ]
         },
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
             //css: ['<%= yeoman.dist %>/css/{,*/}*.css']
         },
 
-        
+
         // Copies remaining files to places other tasks can use
         copy: {
             dist: {
@@ -90,7 +90,7 @@ module.exports = function (grunt) {
                 {
                     expand: true,
                     flatten :true ,
-                    src: ['bower_components/font-awesome/fonts/**'], 
+                    src: ['bower_components/font-awesome/fonts/**'],
                     dest: 'dist/fonts/',
                     cwd: '<%= yeoman.app %>',
                     filter: 'isFile'
@@ -100,6 +100,14 @@ module.exports = function (grunt) {
 
 
         shell: {
+            server : {
+              options : {
+                stdout : true,
+                stderr : true
+              },
+              command : 'node node_modules/MongoQueryEngine/server.js ../../config.js'
+            },
+
             // usemin compresses the css and js, makeing the components lib
             // unnecessary except the polymer script
             'clear-bower-components' : {
@@ -112,6 +120,10 @@ module.exports = function (grunt) {
         }
 
     });
+
+    grunt.registerTask('server', [
+      'shell:server'
+    ]);
 
     grunt.registerTask('build', [
         'clean:dist',

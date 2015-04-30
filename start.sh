@@ -6,7 +6,7 @@ pid=`less $pidfile`
 pid=`ps -ef | grep $pid | awk '{print $2}'`
 
 kill -9 $pid
-#if [ -z "$pid" ] 
+#if [ -z "$pid" ]
 #then
 #       echo "killing server with pid $pid"
 #       kill -9 $pid
@@ -14,7 +14,7 @@ kill -9 $pid
 #       echo "No server found running..."
 #fi
 
-node ../MongoQueryEngine/server.js /opt/funding-wizard/config.js &
+node node_modules/MongoQueryEngine/server.js /opt/funding-wizard/config.js &
 echo $! > $pidfile
 
 echo 'Funding Wizard Started.'

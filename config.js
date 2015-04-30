@@ -12,20 +12,20 @@ exports.db = {
 	// connection string for the database, includes database name
 	url             : "mongodb://localhost:27017/wcga",
 
-	
+
 	// collection where the queryable items are stored
 	mainCollection  : "grants",
 
 
     indexedFilters : ['category','fundingSource','eligibleApplicants','assistanceType',
-    					'awardAmountText','deadlineText'],  
+    					'awardAmountText','deadlineText'],
 
     // sort by text score if text provided
     useMongoTextScore : true,
 
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
     sortBy            : 'dueDate',
-    
+
     // currently Mongo only allows the creation of text search on one attribute.  MQE will
     // combine all filters listed below into a single attribute that will be used for
     // the text search index
@@ -37,17 +37,18 @@ exports.db = {
 
 
 exports.server = {
-	host : "localhost",
-	
+	//host : "localhost",
+	host: 'local.fundingwizard',
+
 	// port outside world goes to.  most likely 80
-	remoteport : 3003,
-	
+	remoteport : 80,
+
 	// local port on machine
-	localport : 3003,
-	
+	localport : 4003,
+
 	// remote hosts that are allowed to access this sites mqe
 	allowedDomains : ["testnode.com","localhost","192.168.1.113"],
-	
+
 	script : "/Users/jrmerz/dev/personal/wcga-ccact-grants/server.js"
 }
 
