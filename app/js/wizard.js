@@ -40,8 +40,8 @@ WCGA.wizard = (function() {
                     if( resp.total ) $('.wizard-num-results').html(resp.total);
                     else $('.wizard-num-results').html(0);
                 }, 500);
- 
-                
+
+
                 var data = [['Category', 'Count']];
 
                 if( resp.filters && resp.filters.category ) {
@@ -65,7 +65,7 @@ WCGA.wizard = (function() {
         );
 
         $('#wizard-search-btn').attr('href',
-            '#search/' + encodeURIComponent(query.text) + 
+            '#search/' + encodeURIComponent(query.text) +
             '/' + encodeURIComponent(JSON.stringify(query.filters)) +
             '/0/6'
         );
@@ -117,7 +117,7 @@ WCGA.wizard = (function() {
                 mqeQuery.text = data.keywords;
             } else if ( key == 'zipCodes' ) {
                 mqeQuery.filters.push({
-                    '$or' : [ 
+                    '$or' : [
                         { zipcode : { '$in' : data.zipCodes.replace(/\s/g,'').split(',') }},
                         { zipcode : { '$exists' : false }}
                     ]
@@ -166,7 +166,7 @@ WCGA.WizardPanel = function(editMode) {
             '</div>' +
             '<div class="wizard">' +
                 '<div class="row">' +
-                    '<div class="col-sm-3 wizard-left"></div>' + 
+                    '<div class="col-sm-3 wizard-left"></div>' +
                     '<div class="col-sm-6 wizard-main">'+
                         '<div class="wizard-select-outer"><select class="wizard-select form-control"></select></div>'+
                         '<div class="wizard-panel-root"></div>'+
@@ -180,8 +180,8 @@ WCGA.WizardPanel = function(editMode) {
                                 '</td>' +
                             '</tr></table>'+
                         '</div>'+
-                    '</div>'+ 
-                    '<div class="col-sm-3 wizard-right"></div>' + 
+                    '</div>'+
+                    '<div class="col-sm-3 wizard-right"></div>' +
                 '</div>' +
             '</div>' +
             '<div class="wizard-chart-outer">' +
@@ -322,7 +322,7 @@ WCGA.WizardPanel = function(editMode) {
                 {key: 'due in 3 to 6 months', type: 'checkbox', searchOnly : true},
                 {key: 'due after 6 months', type: 'checkbox', searchOnly : true},
                 {key: 'Unspecified due date', type: 'checkbox', searchOnly : true},
-                {key: 'dueDate', editLabel : 'Deadline', type: 'text', noLabel: true, editOnly: true, isAttribute: true, placeholder: 'MM/DD/YYYY'}
+                {key: 'dueDate', editLabel : 'Deadline', type: 'date', noLabel: true, editOnly: true, isAttribute: true, placeholder: 'MM/DD/YYYY'}
             ]
         },
         contactInfo : {
@@ -405,15 +405,16 @@ WCGA.WizardPanel = function(editMode) {
 
     function initEdit() {
         data.name = WCGA.user.displayName;
-        data.email = WCGA.user.email;
+        if( WCGA.user.email ) data.email = WCGA.user.email;
+
         schema.contactInfo.panel.find('#wi-contactInfo-name').val(WCGA.user.displayName);
-        schema.contactInfo.panel.find('#wi-contactInfo-email').val(WCGA.user.email);
-        _updateEditLabels();    
+        schema.contactInfo.panel.find('#wi-contactInfo-email').val(WCGA.user.email || '');
+        _updateEditLabels();
     }
 
     function reset() {
         data = {};
-           
+
         // clear all inputs
         for( var key in schema ) {
             if( !schema[key].panel ) continue;
@@ -429,7 +430,7 @@ WCGA.WizardPanel = function(editMode) {
                 }
             });
         }
-        
+
 
         // update all labels
         if( !editMode ) _updateLabels();
@@ -443,8 +444,8 @@ WCGA.WizardPanel = function(editMode) {
         var btn = $(
             '<button class="btn btn-default wizard-btn" attribute="'+name+'">' +
                 '<div><b>'+index+'.</b> '+label+'</div>'+
-                '<div class="wizard-btn-value" attribute="'+name+'">' + 
-                    (editMode ? '[Not Set]' : panelSchema.emptyLabel) + 
+                '<div class="wizard-btn-value" attribute="'+name+'">' +
+                    (editMode ? '[Not Set]' : panelSchema.emptyLabel) +
                 '</div>'+
             '</button>'
         ).on('click', _setMainPanel);
@@ -516,7 +517,7 @@ WCGA.WizardPanel = function(editMode) {
             );
             cb.find('input').on('click', _setAttribute);
             root.append(cb);
-        } else if ( input.type == 'text' || input.type == 'number' ) {
+        } else if ( input.type == 'text' || input.type == 'number' || input.type == 'date' ) {
             var text = $(
                 '<div class="form-group">'+
                     '<label for="'+id+'">'+label+'</label>'+
@@ -526,10 +527,11 @@ WCGA.WizardPanel = function(editMode) {
                 '</div>'
             );
             text.find('input').on('change', _setAttribute);
+
             root.append(text);
         } else if( input.type == 'div' ){
             root.append($('<div id="'+id+'" attribute="'+name+'" value="'+input.key+'"></div>'))
-        
+
         } else if( input.type == 'textarea' ){
 
             var text = $('<div><label>'+label+'</label><br /><textarea class="wizard-input form-control" id="'+id+'" attribute="'+
@@ -563,6 +565,13 @@ WCGA.WizardPanel = function(editMode) {
             }
         } else if ( type == 'text' || type == 'number' ) {
             data[name] = ele.val();
+        } else if ( type == 'date' ) {
+            data[name] = ele.val();
+
+            if( data[name].match(/\d\d\d\d-\d\d-\d\d/) ) {
+              var parts = data[name].split('-');
+              data[name] = parts[1]+'/'+parts[2]+'/'+parts[0];
+            }
         }
 
         if( data.link && !data.link.match(/(http|https|ftp):\/\/.*/) ) data.link = 'http://'+data.link;
@@ -636,7 +645,7 @@ WCGA.WizardPanel = function(editMode) {
                 html += '<li><b>'+label+':</b> <span style="color:#888">'+parts[1]+'/'+parts[2]+'/'+parts[0]+'</span></li>';
             } else if ( data[key] != '' ) {
                 html += '<li><b>'+label+':</b> <span style="color:#888">'+data[key]+'</span></li>';
-            }  
+            }
         }
         html += '</ul>';
 
@@ -693,7 +702,7 @@ WCGA.WizardPanel = function(editMode) {
                             }
                         }
                         showError('<b>Missing Required:</b> '+missing.join(', '));
-                        
+
                     } else {
                         showError(JSON.stringify(resp.message));
                     }
@@ -739,7 +748,7 @@ WCGA.WizardPanel = function(editMode) {
 
     function selectPanel(attribute) {
         if( cPanel ) cPanel.detach();
-        
+
         panel.find('.wizard-btn').removeClass('active');
         panel.find('.wizard-btn[attribute="'+attribute+'"]').addClass('active');
 

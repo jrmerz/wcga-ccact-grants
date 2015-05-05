@@ -12,7 +12,7 @@ WCGA.add = (function() {
                 '</div>'+
                 '<div class="panel-body" style="text-align: center">'+
                     '<div style="margin-bottom: 15px"><a class="btn btn-default" href="/auth/google"><i class="fa fa-google"></i> Login with Google</a></div>'+
-                    //'<div><a class="btn btn-default" href="/auth/yahoo"><i class="fa fa-yahoo"></i> Login with Yahoo</a></div>'+
+                    '<div><a class="btn btn-default" href="/auth/yahoo"><i class="fa fa-yahoo"></i> Login with Yahoo</a></div>'+
                     '<div class="help-text">To suggest a grant you must first login in a Google Account.</div>'+
                 '</div>'+
             '</div>'+
@@ -60,12 +60,12 @@ WCGA.add = (function() {
 
             var html = '<ul class="list-group">';
             for( var i = 0; i < resp.length; i++ ) {
-                html += 
+                html +=
                     '<li class="list-group-item" grant="'+resp[i]._id +'">'+
                         '<span class="pull-right label '+getLabelClass(resp[i].status)+'">'+resp[i].status+'</span>'+
                         resp[i].title+'<br />'+
                         '<a href="'+resp[i].link+'" target="_blank">'+resp[i].link+'</a>'+
-                        '<div style="text-align:right"><a class="btn btn-link remove-suggest-btn" style="font-size: 16px" grant="' + 
+                        '<div style="text-align:right"><a class="btn btn-link remove-suggest-btn" style="font-size: 16px" grant="' +
                             resp[i]._id +'"><i class="fa fa-trash"></i></a></div>'+
                     '</li>';
             }
@@ -85,7 +85,7 @@ WCGA.add = (function() {
                     alert('Success!');
                     $('li[grant="'+btn.attr('grant')+'"]').remove();
                 });
-                
+
             });
         });
     }

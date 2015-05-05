@@ -3,7 +3,7 @@ exports.debug = true;
 
 exports.node = 'node';
 
-exports.dev = false;
+exports.dev = true;
 
 exports.db = {
 	// start command for mongo
@@ -37,14 +37,14 @@ exports.db = {
 
 
 exports.server = {
-	//host : "localhost",
-	host: 'local.fundingwizard',
+	host : "localhost",
+	//host: 'local.fundingwizard',
 
 	// port outside world goes to.  most likely 80
 	remoteport : 80,
 
 	// local port on machine
-	localport : 4003,
+	localport : 3003,
 
 	// remote hosts that are allowed to access this sites mqe
 	allowedDomains : ["testnode.com","localhost","192.168.1.113"],

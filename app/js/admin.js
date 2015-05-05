@@ -65,12 +65,12 @@ WCGA.admin = (function(){
             $('#response').html('No suggestions with status: <b>'+ currentStatus +'</b> found');
             return;
         }
-        
+
         var html = '';
         for( var i = 0; i < resp.length; i++ ) {
             var item = resp[i];
 
-            html += 
+            html +=
                 '<div class="panel '+getStatusClass(currentStatus)+'" style="margin: 10px 20px" item="'+item._id+'">' +
                     '<div class="panel-heading">'+
                         item.title+' '+
@@ -93,8 +93,9 @@ WCGA.admin = (function(){
 
             html += '</ul></div>';
 
-            html += '<div style="margin-top: 10px">Suggested By: <a href="mailto:'+
-                        item.suggestedBy+'">'+item.suggestedBy+'</a> on '+(new Date(item.inserted).toLocaleDateString())+'</div>'+
+            html += '<div style="margin-top: 10px">Suggested By: '+item.suggestedByName+(item.suggestedByEmail ? ', '+item.suggestedByEmail : ', Yahoo Account')+
+                        ' on '+(new Date(item.inserted).toLocaleDateString())+'</div>'+
+                        ( item.suggestedByAuth == 'Yahoo' ? '<div class="help-block">*Suggestions from yahoo accounts do not contain user emails</div>' : '')+
                     '</div>'+
                 '</div>';
         }
@@ -153,7 +154,7 @@ WCGA.admin = (function(){
     function getLabel(key) {
         if( labelMap[key] ) return labelMap[key];
         return key;
-    } 
+    }
 
     return {
         init : init,
