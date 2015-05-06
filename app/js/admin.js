@@ -24,6 +24,11 @@ WCGA.admin = (function(){
             if( $(this).attr('panel') == 'blacklisted' ) loadBlacklist();
         });
 
+
+        var d = new Date(new Date().getTime() - (7*24*60*60*1000));
+        var filter = [{"postDate":{"$gte":d.toISOString()}}];
+        $('#last7Link').attr('href', '/#search//'+encodeURIComponent(JSON.stringify(filter))+'/0/6');
+
         reload();
     }
 

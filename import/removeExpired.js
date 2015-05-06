@@ -3,7 +3,7 @@ exports.run = function(db, mainCollection) {
     console.log('Removing expired grants');
 
     var query = {
-        dueDate :  { "$lte" : new Date() } 
+        dueDate :  { "$lte" : new Date() }
     }
 
     mainCollection.remove(query, function(err, resp){
@@ -17,14 +17,14 @@ exports.run = function(db, mainCollection) {
 }
 
 function markExpiredSuggestions(db) {
-    db.collection('suggest', function(err, c) { 
+    db.collection('suggest', function(err, c) {
         if( err ) {
             console.log(err);
             done();
         }
 
         var query = {
-            dueDate :  { '$lte' : new Date() } 
+            dueDate :  { '$lte' : new Date() }
         };
 
         var action = {
@@ -40,7 +40,6 @@ function markExpiredSuggestions(db) {
             }
 
             console.log('Marking expired suggestions')
-            console.log(results);
             done();
         });
 
