@@ -227,7 +227,7 @@ WCGA.WizardPanel = function(editMode) {
             inputs : [
                 {key: 'Grant', type: 'checkbox'},
                 {key: 'Rebate', type: 'checkbox'},
-                {key: 'Load', type: 'checkbox'},
+                {key: 'Loan', type: 'checkbox'},
                 {key: 'Tax Incentive', type: 'checkbox'},
                 {key: 'Other', type: 'checkbox'}
             ]
