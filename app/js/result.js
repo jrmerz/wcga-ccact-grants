@@ -6,35 +6,35 @@ Handlebars.registerHelper('ifCond', function(v1, options) {
 });
 
 WCGA.result = (function() {
-	
+
 	var resultTemplate = null;
-	
+
 	var loaded = false;
 	var waiting = null;
-	
+
 	var currentResult = {};
 	var loadHandlers = [];
 	var ignoreAttrs = ['_id', 'count', 'lengths'];
-	
+
 	function init() {
 		$('#result').load('/result.handlebars', function() {
 			var source = $("#result-template").html();
 			resultTemplate = Handlebars.compile(source);
-			
+
 			loaded = true;
-			
+
 			if( waiting != null ) updateResult(waiting);
-			
+
 			for( var i = 0; i < loadHandlers.length; i++ ) {
 				var f = loadHandlers[i];
 				f();
 			}
 		});
-		
+
 		$(window).bind('result-update-event', function(e, result, error){
 			// double check page
 			var page = window.location.hash.replace(/\/.*/,'');
-			
+
 			if( page.indexOf('result') == -1 ) return;
 
 			if( error ) {
@@ -52,7 +52,7 @@ WCGA.result = (function() {
 			$('#blacklist-btn').on('click', blacklist);
 		}
 	}
-	
+
 	// fires when template is loaded
 	function onLoad(handler) {
 		if( resultTemplate == null ) loadHandlers.push(handler);
@@ -65,10 +65,10 @@ WCGA.result = (function() {
 			waiting = result;
 			return;
 		}
-		
+
 		currentResult = result;
 		$('#result').html(getResultHtml(result));
-		
+
 		$('.result-back-btn').on('click', function(){
 			$(window).trigger('back-to-search-event');
 		});
@@ -82,7 +82,7 @@ WCGA.result = (function() {
 			} else {
 				btn = $('<a class="btn btn-default"><i class="fa fa-trash"></i> Remove</a>').on('click', showBlacklist);
 			}
-			
+
 
 			$('#outer-blacklist')
 				.append(btn)
@@ -151,6 +151,7 @@ WCGA.result = (function() {
 			contact : result.contact || '',
 			CFDANumber : result.CFDANumber || '',
 			fundingOppNumber : result.fundingOppNumber || '',
+      oppId : result.oppId,
 			dueDate : formatDate(result.dueDate),
 			office : result.office,
 			category : result.category ? result.category.sort().join('<br />') : '',
@@ -167,13 +168,13 @@ WCGA.result = (function() {
 			var now = new Date();
 			now.setMonth(now.getMonth()-1);
 			var posted = new Date(result.postDate);
-			
+
 			if( now.getTime() < posted.getTime() ) {
 				dataTemplate['new'] = '<span class="new"><i class="fa fa-star-o"></i> New</span> ';
 			}
 		}
 		if( !dataTemplate['new'] ) dataTemplate['new'] = '';
-		
+
 
 		// set amount
 		if( dataTemplate.minAmount !== undefined && result.maxAmount !== undefined ) {
@@ -216,12 +217,12 @@ WCGA.result = (function() {
 		return '$'+amount.join('');
 	}
 
-	
+
 	return {
 		init : init,
 		updateResult : updateResult,
 		getResultHtml : getResultHtml,
 		onLoad : onLoad
 	}
-	
+
 })();

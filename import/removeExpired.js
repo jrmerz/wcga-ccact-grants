@@ -10,8 +10,6 @@ exports.run = function(db, mainCollection) {
         if( err ) console.log(err);
 
         console.log('Removed grants from search');
-        console.log(resp);
-
         markExpiredSuggestions(db);
     });
 }

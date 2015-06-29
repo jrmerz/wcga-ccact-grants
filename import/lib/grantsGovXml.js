@@ -6,6 +6,7 @@ var request = require('request');
 var async = require('async');
 var md5 = require('MD5');
 var parseString = require('xml2js').parseString;
+var superagent = require('superagent');
 
 var config = require('./grantsGovConf').config;
 var vocab = require('./controlledVocab');
@@ -16,7 +17,12 @@ var url = 'http://www.grants.gov/web/grants/xml-extract.html' +
           '?p_p_id=&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view'+
           '&p_p_cacheability=cacheLevelPage&p_p_col_id=column-1'+
           '&p_p_col_pos=1&p_p_col_count=2&download=GrantsDBExtract';
-var applyUrl = 'http://apply07.grants.gov/apply/GetGrant?opportunity=';
+
+//var applyUrl = 'http://apply07.grants.gov/apply/GetGrant?opportunity=';
+var applyUrl = 'http://www.grants.gov/web/grants/view-opportunity.html?oppId=';
+
+var idUrl = 'http://www.grants.gov/grantsws/OppsSearch?jp=';
+
 
 var dir = __dirname+'/data/';
 var rootFileName = 'GrantsDBExtract';
@@ -93,19 +99,47 @@ function process(err, xml, collection, callback) {
 
     var active = getActive(xml.Grants.FundingOppSynopsis);
     var items = [];
-    for( var i = 0; i < active.length; i++ ) {
-        var item = createItemFromOpp(active[i]);
-        item.id = md5(item.link);
-        items.push(item);
+
+    for( var i = 0; i < active.length; i++) {
+      var item = createItemFromOpp(active[i]);
+      items.push(item);
     }
+
+    removeBlackListItems(items);
+
+    console.log('Looking up oppId\'s');
+    async.eachSeries(items,
+      function(item, next) {
+        var search = {keyword : item.fundingOppNumber};
+
+        // lookup oppId using JSON API
+        superagent
+          .get(idUrl+encodeURIComponent(JSON.stringify(search)))
+          .end(function(err, res){
+            if( res ) res = JSON.parse(res.text);
+
+            if( res && res.oppHits && res.oppHits.length > 0 ) {
+              item.oppId = res.oppHits[0].id;
+              item.link = applyUrl+item.oppId;
+              item.id = md5(item.link);
+              
+            } else {
+              console.log('Unable to lookup oppId for: '+item.fundingOppNumber);
+            }
+
+            next();
+          }
+        );
+
+      }, function(err){
+        insert(collection, items, callback);
+      }
+    );
 
     // Nice debug info
     //console.log(xml.Grants.FundingOppSynopsis.length);
     //console.log(items.length);
     //console.log(unknowns);
-
-    removeBlackListItems(items);
-    insert(collection, items, callback);
 }
 
 function insert(collection, items, callback) {
@@ -167,13 +201,13 @@ function clean(items, collection, callback) {
             callback();
         }
     )
-}  
+}
 
 function upsert(item, collection, next) {
     collection.update(
-        {link: item.link}, 
-        item, 
-        {upsert: true, w: 1}, 
+        {link: item.link},
+        item,
+        {upsert: true, w: 1},
         function(err, result) {
             next();
         }
@@ -235,7 +269,7 @@ function createItemFromOpp(obj) {
 
     // set link
     // TODO: should this be fundingOppUrl?
-    item.link = applyUrl+item.fundingOppNumber;
+    //item.link = applyUrl+item.fundingOppNumber;
 
     // set contact information
     if( hasAttribute(obj, 'AgencyContact') ) {
@@ -248,7 +282,7 @@ function createItemFromOpp(obj) {
         item.obtainFundingOppText = obj.ObtainFundingOppText[0]._;
         delete obj.ObtainFundingOppText;
     }
-    
+
     // set category and fundingActivityCategory
     if( hasAttribute(obj, 'FundingActivityCategory') ) {
         item.category = [];
@@ -267,7 +301,7 @@ function createItemFromOpp(obj) {
                 item.category.push(name);
             }
         }
-        
+
         delete obj.FundingActivityCategory;
     }
 
@@ -304,7 +338,7 @@ function createItemFromOpp(obj) {
 
             item.eligibilityCategory.push(id);
             if( !app ) continue;
-            
+
             if( item.eligibleApplicants.indexOf(app.wgca) == -1 ) {
                 item.eligibleApplicants.push(app.wgca);
             }
@@ -444,7 +478,7 @@ function dateStrToDate(date) {
 // clean up data dir, keep at most 4 snapshots
 function cleanUpZips() {
     var files = fs.readdirSync(dir);
-    if( files.length < 5 ) return; 
+    if( files.length < 5 ) return;
 
     var zips = [];
     for( var i = 0; i < files.length; i++ ) {
@@ -472,5 +506,3 @@ function cleanUpZips() {
     }
 }
 exports.cleanUpZips = cleanUpZips;
-
-
