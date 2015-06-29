@@ -116,13 +116,18 @@ function process(err, xml, collection, callback) {
         superagent
           .get(idUrl+encodeURIComponent(JSON.stringify(search)))
           .end(function(err, res){
-            if( res ) res = JSON.parse(res.text);
+            try {
+              if( res ) res = JSON.parse(res.text);
+            } catch(e) {
+              console.log('Error parsing response for oppId: '+item.fundingOppNumber);
+              return next();
+            }
 
             if( res && res.oppHits && res.oppHits.length > 0 ) {
               item.oppId = res.oppHits[0].id;
               item.link = applyUrl+item.oppId;
               item.id = md5(item.link);
-              
+
             } else {
               console.log('Unable to lookup oppId for: '+item.fundingOppNumber);
             }

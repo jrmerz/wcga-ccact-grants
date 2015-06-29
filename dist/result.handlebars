@@ -46,12 +46,12 @@
 			{{/ifCond}}
 			{{#ifCond CFDANumber}}
 				<div><b>CFDA Number: </b> <span class="light-gray">
-					<a href="http://apply07.grants.gov/apply/GetGrant?cfda={{CFDANumber}}" target="_blank">{{CFDANumber}}</a>
+					<a href="http://www.grants.gov/web/grants/view-opportunity.html?oppId={{oppId}}" target="_blank">{{CFDANumber}}</a>
 				</div>
 			{{/ifCond}}
 			{{#ifCond fundingOppNumber}}
 				<div><b>Funding Opportunity Number: </b> <span class="light-gray">
-					<a href="http://apply07.grants.gov/apply/GetGrant?opportunity={{fundingOppNumber}}" target="_blank">{{fundingOppNumber}}</a>
+					<a href="http://www.grants.gov/web/grants/view-opportunity.html?oppId={{oppId}}" target="_blank">{{fundingOppNumber}}</a>
 				</div>
 			{{/ifCond}}
 		</div>
@@ -87,5 +87,5 @@
 	<a class="btn btn-link pull-right result-back-btn" >
 		<i class="fa fa-reply"></i> Back to Search Results
 	</a>
-	
+
 </script>
