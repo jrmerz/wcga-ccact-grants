@@ -12,6 +12,12 @@ var config = global.appConfig;
 var express = global.express;
 var logger = global.logger;
 
+// catch any badness
+process.on('uncaughtException', function(err) {
+  logger.error('!! Uncaught exception !!');
+  logger.error(err);
+});
+
 // express app
 exports.bootstrap = function(server) {
     require('./lib/auth');
@@ -122,4 +128,3 @@ function isZipFilter(filter) {
     }
     return false;
 }
-
